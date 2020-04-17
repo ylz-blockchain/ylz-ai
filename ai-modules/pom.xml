@@ -15,6 +15,7 @@
         <module>ai-interface</module>
         <module>ai-admin</module>
         <module>ai-generator</module>
+        <module>ai-mobile</module>
     </modules>
 
     <dependencies>
