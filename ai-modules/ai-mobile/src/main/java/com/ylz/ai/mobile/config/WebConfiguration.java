@@ -42,7 +42,7 @@ public class WebConfiguration implements WebMvcConfigurer {
         ArrayList<String> commonPathPatterns = getExcludeCommonPathPatterns();
         registry.addInterceptor(getServiceAuthRestInterceptor()).addPathPatterns("/**")
                 .excludePathPatterns(commonPathPatterns.toArray(new String[]{}));
-//        registry.addInterceptor(getUserAuthRestInterceptor()).addPathPatterns("/**").excludePathPatterns(commonPathPatterns.toArray(new String[]{}));
+        registry.addInterceptor(getUserAuthRestInterceptor()).addPathPatterns("/**").excludePathPatterns(commonPathPatterns.toArray(new String[]{}));
     }
 
     @Bean

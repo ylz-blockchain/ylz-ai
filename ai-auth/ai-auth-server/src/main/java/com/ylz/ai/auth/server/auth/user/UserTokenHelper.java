@@ -15,6 +15,18 @@ import org.springframework.stereotype.Component;
 public class UserTokenHelper {
     @Autowired
     private KeyConfiguration keyConfiguration;
+
+    /**
+     * @Description 秘钥加密token
+     * @Author haifeng.lv
+     * @param: authInfo 授权信息
+     * @Date 2019/12/16 17:34
+     * @return: java.lang.String
+     */
+    public String generateToken(AuthInfo authInfo) throws Exception {
+        return AuthHelper.generateToken(authInfo, keyConfiguration.getUserPriKey(), Integer.MAX_VALUE);
+    }
+
     /**
      * @Description 获取用户 token
      * @Author haifeng.lv
