@@ -6,9 +6,10 @@ import com.ylz.ai.auth.server.feign.IFrontUserFeign;
 import com.ylz.ai.auth.server.modules.user.service.IFrontUserService;
 import com.ylz.ai.common.vo.AuthInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletRequest;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Description
@@ -21,6 +22,8 @@ public class FrontUserService implements IFrontUserService {
     private UserTokenHelper userTokenHelper;
     @Autowired
     private IFrontUserFeign frontUserFeign;
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     /**
      * @Description 获取token
@@ -33,6 +36,14 @@ public class FrontUserService implements IFrontUserService {
     @Override
     public String getToken(FrontAuthenticationRequest request) throws Exception {
         frontUserFeign.validate(request);
-        return userTokenHelper.generateToken(new AuthInfo(request.getId(), request.getName()));
+        if(redisTemplate.hasKey(request.getId())) {
+            return (String) redisTemplate.opsForValue().get(request.getId());
+        }
+
+        // 获取 token
+        String token = userTokenHelper.generateToken(new AuthInfo(request.getId(), request.getName()));
+        redisTemplate.opsForValue().set(request.getId(), token, 60 * 10, TimeUnit.SECONDS);
+
+        return token;
     }
 }

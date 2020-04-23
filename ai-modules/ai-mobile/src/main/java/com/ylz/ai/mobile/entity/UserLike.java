@@ -11,16 +11,16 @@ import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
 
 /**
- * @Description: 前端用户
+ * @Description: 用户点赞
  * @Author: haifeng.lv
  * @Date: 2020-04-21 14:46
  */
 @Data
-@TableName("front_user")
+@TableName("user_like")
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@ApiModel(value="front_user对象", description="前端用户")
-public class FrontUser {
+@ApiModel(value="user_like对象", description="用户点赞")
+public class UserLike {
     
 	/**创建时间*/
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
@@ -29,32 +29,13 @@ public class FrontUser {
 	/**创建人*/
     @ApiModelProperty(value = "创建人")
 	private String crtUser;
-	/**描述*/
-    @ApiModelProperty(value = "描述")
-	private String description;
-	/**headImage*/
-    @ApiModelProperty(value = "headImage")
-	private String headImage;
 	/**id*/
 	@TableId(type = IdType.UUID)
     @ApiModelProperty(value = "id")
 	private String id;
-	/**ip*/
-    @ApiModelProperty(value = "ip")
-	private String ip;
-	/**lastLoginTime*/
-    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
-    @ApiModelProperty(value = "lastLoginTime")
-	private java.time.LocalDateTime lastLoginTime;
-	/**姓名(可以是微信号)*/
-    @ApiModelProperty(value = "姓名(可以是微信号)")
-	private String name;
-	/**phoneNumber*/
-    @ApiModelProperty(value = "phoneNumber")
-	private String phoneNumber;
-	/**sex*/
-    @ApiModelProperty(value = "sex")
-	private Integer sex;
+	/**imageId*/
+    @ApiModelProperty(value = "imageId")
+	private String imageId;
 	/**最后更新时间*/
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "最后更新时间")
@@ -62,7 +43,7 @@ public class FrontUser {
 	/**最后更新人*/
     @ApiModelProperty(value = "最后更新人")
 	private String updUser;
-	/**wxNumber*/
-    @ApiModelProperty(value = "wxNumber")
-	private String wxNumber;
+	/**userId*/
+    @ApiModelProperty(value = "userId")
+	private String userId;
 }

@@ -112,4 +112,17 @@ export const asyncRouterMap = [{
     name: '服务监控',
     authority: '/system/service'
   }]
+},{
+  path: '/mobile',
+  component: Layout,
+  name: '前端管理',
+  icon: 'setting',
+  authority: '/mobile',
+  children: [{
+    path: '/mobile/tagDictionary',
+    icon: 'fa-user',
+    component: _import('mobile/tagDictionary/index'),
+    name: '标签管理',
+    authority: '/mobile/tagDictionary'
+  }]
 }];

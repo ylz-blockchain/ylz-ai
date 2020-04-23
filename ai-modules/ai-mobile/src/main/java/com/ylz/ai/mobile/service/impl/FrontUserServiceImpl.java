@@ -1,6 +1,5 @@
 package com.ylz.ai.mobile.service.impl;
 
-import com.ylz.ai.mobile.constant.ErrCodeConstant;
 import com.ylz.ai.mobile.entity.FrontUser;
 import com.ylz.ai.mobile.mapper.FrontUserMapper;
 import com.ylz.ai.mobile.service.IFrontUserService;
@@ -21,7 +20,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * @Description: 前端用户
@@ -50,7 +48,7 @@ public class FrontUserServiceImpl extends ServiceImpl<FrontUserMapper, FrontUser
     @Transactional(rollbackFor = Exception.class)
     public boolean alterFrontUserById(FrontUser frontUser) {
         FrontUser frontUserEntity = baseMapper.selectById(frontUser.getId());
-        if(frontUserEntity == null) {
+        if (frontUserEntity == null) {
             throw new BusinessException(ErrCodeBaseConstant.COMMON_PARAM_ERR);
         } else {
             BeanUtils.copyProperties(frontUser, frontUserEntity);
@@ -68,7 +66,7 @@ public class FrontUserServiceImpl extends ServiceImpl<FrontUserMapper, FrontUser
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean dropFrontUserBatch(String ids) {
-        if(StringUtils.isBlank(ids)) {
+        if (StringUtils.isBlank(ids)) {
             throw new BusinessException(ErrCodeBaseConstant.COMMON_PARAM_ERR);
         } else {
             return super.removeByIds(Arrays.asList(ids.split(",")));
@@ -94,17 +92,12 @@ public class FrontUserServiceImpl extends ServiceImpl<FrontUserMapper, FrontUser
      */
     @Override
     public void validate(String id, String name, HttpServletRequest httpServletRequest) {
-        QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("wx_number", id);
-        List<FrontUser> frontUsers = baseMapper.selectList(queryWrapper);
-        if(frontUsers.size() > 1) {
-            throw new BusinessException(ErrCodeConstant.COMMON_PARAM_ERR);
-        }
+        FrontUser frontUser = baseMapper.selectById(id);
 
-        if(frontUsers.isEmpty()) {
-            FrontUser frontUser = new FrontUser();
+        if (null == frontUser) {
+            frontUser = new FrontUser();
+            frontUser.setId(id);
             EntityUtils.setDefaultValue(frontUser);
-            frontUser.setWxNumber(id);
             frontUser.setName(name);
             // 默认为男
             frontUser.setSex(0);
@@ -112,7 +105,6 @@ public class FrontUserServiceImpl extends ServiceImpl<FrontUserMapper, FrontUser
             frontUser.setLastLoginTime(LocalDateTime.now());
             baseMapper.insert(frontUser);
         } else {
-            FrontUser frontUser = frontUsers.get(0);
             frontUser.setLastLoginTime(LocalDateTime.now());
             baseMapper.updateById(frontUser);
         }
