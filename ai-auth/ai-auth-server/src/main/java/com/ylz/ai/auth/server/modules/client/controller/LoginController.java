@@ -59,12 +59,12 @@ public class LoginController {
 
     @RequestMapping(value = "token", method = RequestMethod.DELETE)
     @ApiOperation(value="退出登录", notes="退出登录")
-    public JSONObject token(@RequestParam(name="Authorization",required=true,defaultValue = "Basic Y2xvdWQ6Y2xvdWQ=") String Authorization,
+    public JSONObject token(@RequestParam(name="authorization",required=true,defaultValue = "Basic Y2xvdWQ6Y2xvdWQ=") String authorization,
                            @RequestParam(name="access_token") String access_token) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", Authorization);
+        headers.add("Authorization", authorization);
         HttpEntity<Object> requestEntity = new HttpEntity<>(params, headers);
 
         String requestUrl = "http://" + host + prefix + "/oauth/token?access_token=" + access_token;
