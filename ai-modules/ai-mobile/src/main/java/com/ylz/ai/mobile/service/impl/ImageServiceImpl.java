@@ -1,23 +1,19 @@
 package com.ylz.ai.mobile.service.impl;
 
 import com.ylz.ai.common.context.BaseContextHandler;
-import com.ylz.ai.mobile.constant.ImageTypeConstant;
 import com.ylz.ai.mobile.entity.Image;
 import com.ylz.ai.mobile.entity.ImageComment;
 import com.ylz.ai.mobile.entity.UserLike;
 import com.ylz.ai.mobile.mapper.ImageCommentMapper;
 import com.ylz.ai.mobile.mapper.ImageMapper;
 import com.ylz.ai.mobile.service.IAttentionUserService;
-import com.ylz.ai.mobile.service.IImageCommentService;
 import com.ylz.ai.mobile.service.IImageService;
 import com.ylz.ai.common.error.ErrCodeBaseConstant;
 import com.ylz.ai.common.exception.BusinessException;
-import com.ylz.ai.common.query.QueryGenerator;
 import com.ylz.ai.common.util.EntityUtils;
 import com.ylz.ai.mobile.service.IUserLikeService;
 import com.ylz.ai.mobile.vo.response.ImageInfo;
 import com.ylz.ai.mobile.vo.response.UserInfo;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -46,45 +42,38 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
     @Autowired
     private IAttentionUserService attentionUserService;
 
+    /**
+     * @Description 查询首页数据
+     * @Author haifeng.lv
+     * @param: pageNo
+     * @param: pageSize
+     * @Date 2020/4/24 15:37
+     * @return: com.baomidou.mybatisplus.core.metadata.IPage<com.ylz.ai.mobile.vo.response.ImageInfo>
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public IPage<ImageInfo> findImagePageList(Integer pageNo, Integer pageSize, String sortProp, String sortType) {
-        QueryWrapper<Image> queryWrapper = new QueryWrapper<>();
-        QueryGenerator.doMultiFieldsOrder(queryWrapper, sortProp, sortType);
-        queryWrapper.eq("type", ImageTypeConstant.OPEN);
-        Page<Image> page = new Page<>(pageNo, pageSize);
-        IPage<Image> pageList = baseMapper.selectPage(page, queryWrapper);
-        IPage<ImageInfo> response = new Page<>();
-        BeanUtils.copyProperties(pageList, response);
-        response.setRecords(new ArrayList<>());
+    public IPage<ImageInfo> findIndexImagePageList(Integer pageNo, Integer pageSize) {
+        Page<ImageInfo> page = new Page(pageNo, pageSize);
+        IPage<ImageInfo> response = baseMapper.selectIndexImagePageList(page);
+        // 设置喜欢与关注
+        setLikeAndAttention(response.getRecords());
+        return response;
+    }
 
-        if (!pageList.getRecords().isEmpty()) {
-            // 查询用户喜欢列表
-            List<UserLike> userLikes = userLikeService.findUserLikeByUserId(BaseContextHandler.getUserId());
-            Set<String> imageIds = userLikes.stream().map(UserLike::getImageId).collect(Collectors.toSet());
-            // 查询用户关注列表
-            List<UserInfo> attentionUsers = attentionUserService.findAttentionUsers();
-            Set<String> userIds = attentionUsers.stream().map(UserInfo::getId).collect(Collectors.toSet());
-            List<ImageInfo> imageInfos = pageList.getRecords().stream().map(record -> {
-                ImageInfo imageInfo = new ImageInfo();
-                BeanUtils.copyProperties(record, imageInfo);
-                if (imageIds.contains(imageInfo.getId())) {
-                    imageInfo.setIsLike(true);
-                } else {
-                    imageInfo.setIsLike(false);
-                }
-                if (userIds.contains(imageInfo.getUploadUserId())) {
-                    imageInfo.setIsAttention(true);
-                } else {
-                    imageInfo.setIsAttention(false);
-                }
-
-                return imageInfo;
-            }).collect(Collectors.toList());
-
-            response.setRecords(imageInfos);
-        }
-
+    /**
+     * @Description 发现分页列表查询
+     * @Author haifeng.lv
+     * @param: pageNo
+     * @param: pageSize
+     * @Date 2020/4/24 15:55
+     * @return: com.baomidou.mybatisplus.core.metadata.IPage<com.ylz.ai.mobile.vo.response.ImageInfo>
+     */
+    @Override
+    public IPage<ImageInfo> findDiscoverImagePageList(Integer pageNo, Integer pageSize) {
+        Page<ImageInfo> page = new Page(pageNo, pageSize);
+        IPage<ImageInfo> response = baseMapper.selectDiscoverImagePageList(page);
+        // 设置喜欢与关注
+        setLikeAndAttention(response.getRecords());
         return response;
     }
 
@@ -101,12 +90,15 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
         if (null == image) {
             throw new BusinessException(ErrCodeBaseConstant.COMMON_PARAM_ERR);
         } else {
+            // 增加浏览次数
+            image.setBrowseNumber(image.getBrowseNumber() + 1);
+            super.baseMapper.updateById(image);
+
             ImageInfo imageInfo = new ImageInfo();
             BeanUtils.copyProperties(image, imageInfo);
             QueryWrapper<ImageComment> queryWrapper = new QueryWrapper();
             queryWrapper.eq("comment_image_id", image.getId());
             imageInfo.setComments(imageCommentMapper.selectList(queryWrapper));
-
             return imageInfo;
         }
     }
@@ -124,5 +116,48 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
     @Override
     public boolean dropImageById(String id) {
         return super.removeById(id);
+    }
+
+    @Override
+    public List<Image> findImagesByIds(List<String> ids) {
+        QueryWrapper<Image> queryWrapper = new QueryWrapper();
+        queryWrapper.in("id", ids);
+        return baseMapper.selectList(queryWrapper);
+    }
+
+    @Override
+    public void alterImageRedirectById(String imageId) {
+        Image image = baseMapper.selectById(imageId);
+        image.setRedirectNumber(image.getRedirectNumber() + 1);
+        super.updateById(image);
+    }
+
+    /**
+     * @Description 设置喜欢与关注
+     * @Author haifeng.lv
+     * @param: imageInfos
+     * @Date 2020/4/24 15:52
+     */
+    public void setLikeAndAttention(List<ImageInfo> imageInfos) {
+        if (!imageInfos.isEmpty()) {
+            // 查询用户喜欢列表
+            List<UserLike> userLikes = userLikeService.findUserLikeByUserId(BaseContextHandler.getUserId());
+            Set<String> imageIds = userLikes.stream().map(UserLike::getImageId).collect(Collectors.toSet());
+            // 查询用户关注列表
+            List<UserInfo> attentionUsers = attentionUserService.findAttentionUsers();
+            Set<String> userIds = attentionUsers.stream().map(UserInfo::getId).collect(Collectors.toSet());
+            imageInfos.forEach(record -> {
+                if (imageIds.contains(record.getId())) {
+                    record.setIsLike(true);
+                } else {
+                    record.setIsLike(false);
+                }
+                if (userIds.contains(record.getUploadUserId())) {
+                    record.setIsAttention(true);
+                } else {
+                    record.setIsAttention(false);
+                }
+            });
+        }
     }
 }

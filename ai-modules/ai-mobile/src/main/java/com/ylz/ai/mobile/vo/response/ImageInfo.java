@@ -17,11 +17,6 @@ import java.util.List;
 @ApiModel(value = "imageInfo", description = "imageInfo")
 public class ImageInfo {
     /**
-     * 创建时间
-     */
-    @ApiModelProperty(value = "创建时间")
-    private LocalDateTime crtTime;
-    /**
      * 描述
      */
     private String description;
@@ -35,9 +30,23 @@ public class ImageInfo {
     @ApiModelProperty(value = "点赞数")
     private Integer likeNumber;
     /**
+     * 转发次数
+     */
+    @ApiModelProperty(value = "转发次数")
+    private Integer redirectNumber;
+    /**
+     * 浏览次数
+     */
+    @ApiModelProperty(value = "浏览次数")
+    private Integer browseNumber;
+    /**
      * name
      */
     private String name;
+    /**
+     * title
+     */
+    private String title;
     /**
      * prototypeVisitAddress
      */

@@ -31,22 +31,36 @@ public class ImageController {
     private IImageService imageService;
 
     /**
-     * 分页列表查询
+     * 首页分页列表查询
      *
      * @param pageNo
      * @param pageSize
-     * @param sortProp
-     * @param sortType
      * @return
      */
-    @ApiOperation(value = "照片-分页列表查询", notes = "照片-分页列表查询")
-    @GetMapping(value = "/getImagePageList")
-    public Result<IPage<ImageInfo>> getImagePageList(@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
-                                                     @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
-                                                     @RequestParam(name = "sortProp", required = false) String sortProp,
-                                                     @RequestParam(name = "sortType", required = false) String sortType) {
+    @ApiOperation(value = "照片-首页分页列表查询", notes = "照片-首页分页列表查询")
+    @GetMapping(value = "/getIndexImagePageList")
+    public Result<IPage<ImageInfo>> getIndexImagePageList(@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                     @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
         Result<IPage<ImageInfo>> result = new Result<>();
-        IPage<ImageInfo> pageList = imageService.findImagePageList(pageNo, pageSize, sortProp, sortType);
+        IPage<ImageInfo> pageList = imageService.findIndexImagePageList(pageNo, pageSize);
+        result.setSuccess(true);
+        result.setResult(pageList);
+        return result;
+    }
+
+    /**
+     * 发现分页列表查询
+     *
+     * @param pageNo
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "照片-发现分页列表查询", notes = "照片-发现分页列表查询")
+    @GetMapping(value = "/getDiscoverImagePageList")
+    public Result<IPage<ImageInfo>> getDiscoverImagePageList(@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                     @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
+        Result<IPage<ImageInfo>> result = new Result<>();
+        IPage<ImageInfo> pageList = imageService.findDiscoverImagePageList(pageNo, pageSize);
         result.setSuccess(true);
         result.setResult(pageList);
         return result;

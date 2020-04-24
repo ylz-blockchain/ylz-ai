@@ -124,5 +124,11 @@ export const asyncRouterMap = [{
     component: _import('mobile/tagDictionary/index'),
     name: '标签管理',
     authority: '/mobile/tagDictionary'
+  },{
+    path: '/mobile/recognitionType',
+    icon: 'fa-user',
+    component: _import('mobile/recognitionType/index'),
+    name: '识别类型',
+    authority: '/mobile/recognitionType'
   }]
 }];

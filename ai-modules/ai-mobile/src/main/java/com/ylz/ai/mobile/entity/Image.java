@@ -13,7 +13,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 /**
  * @Description: 照片
  * @Author: haifeng.lv
- * @Date: 2020-04-21 14:46
+ * @Date: 2020-04-24 14:33
  */
 @Data
 @TableName("image")
@@ -22,6 +22,9 @@ import org.springframework.format.annotation.DateTimeFormat;
 @ApiModel(value="image对象", description="照片")
 public class Image {
     
+	/**浏览次数*/
+    @ApiModelProperty(value = "浏览次数")
+	private Integer browseNumber;
 	/**创建时间*/
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "创建时间")
@@ -33,8 +36,11 @@ public class Image {
 	@TableId(type = IdType.UUID)
     @ApiModelProperty(value = "id")
 	private String id;
-	/**likeNumber*/
-    @ApiModelProperty(value = "likeNumber")
+	/**0 不公开 1 公开*/
+    @ApiModelProperty(value = "0 不公开 1 公开")
+	private Integer isOpen;
+	/**点赞数*/
+    @ApiModelProperty(value = "点赞数")
 	private Integer likeNumber;
 	/**name*/
     @ApiModelProperty(value = "name")
@@ -42,15 +48,21 @@ public class Image {
 	/**prototypeVisitAddress*/
     @ApiModelProperty(value = "prototypeVisitAddress")
 	private String prototypeVisitAddress;
+	/**识别类型id*/
+    @ApiModelProperty(value = "识别类型id")
+	private String recognitionTypeId;
 	/**recognitionVisitAddress*/
     @ApiModelProperty(value = "recognitionVisitAddress")
 	private String recognitionVisitAddress;
+	/**转发次数*/
+    @ApiModelProperty(value = "转发次数")
+	private Integer redirectNumber;
 	/**size*/
     @ApiModelProperty(value = "size")
 	private Integer size;
-	/**0 不公开 1 公开*/
-    @ApiModelProperty(value = "0 不公开 1 公开")
-	private Integer type;
+	/**title*/
+    @ApiModelProperty(value = "title")
+	private String title;
 	/**最后更新时间*/
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "最后更新时间")

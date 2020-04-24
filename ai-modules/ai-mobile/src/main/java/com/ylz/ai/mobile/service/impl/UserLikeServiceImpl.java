@@ -1,28 +1,25 @@
 package com.ylz.ai.mobile.service.impl;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ylz.ai.common.context.BaseContextHandler;
+import com.ylz.ai.mobile.entity.Image;
 import com.ylz.ai.mobile.entity.UserLike;
 import com.ylz.ai.mobile.mapper.UserLikeMapper;
 import com.ylz.ai.mobile.service.IImageService;
 import com.ylz.ai.mobile.service.IUserLikeService;
-import com.ylz.ai.common.error.ErrCodeBaseConstant;
-import com.ylz.ai.common.exception.BusinessException;
-import com.ylz.ai.common.query.QueryGenerator;
 import com.ylz.ai.common.util.EntityUtils;
-import com.ylz.ai.mobile.vo.request.AddUserLike;
-import org.apache.commons.lang3.StringUtils;
+import com.ylz.ai.mobile.vo.response.ImageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.transaction.annotation.Transactional;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @Description: 用户点赞
@@ -81,5 +78,20 @@ public class UserLikeServiceImpl extends ServiceImpl<UserLikeMapper, UserLike> i
         QueryWrapper<UserLike> queryWrapper = new QueryWrapper();
         queryWrapper.eq("user_id", userId);
         return baseMapper.selectList(queryWrapper);
+    }
+
+    /**
+     * @Description 获取当前用户点赞照片列表
+     * @Author haifeng.lv
+     * @param: pageNo
+     * @param: pageSize
+     * @Date 2020/4/24 15:14
+     * @return: java.util.List<com.ylz.ai.mobile.vo.response.ImageInfo>
+     */
+    @Override
+    public IPage<ImageInfo> findLikeImagesByCurrent(Integer pageNo, Integer pageSize) {
+        Page<ImageInfo> page = new Page(pageNo, pageSize);
+        IPage<ImageInfo> response = baseMapper.selectLikeImagesByCurrent(page, BaseContextHandler.getUserId());
+        return response;
     }
 }

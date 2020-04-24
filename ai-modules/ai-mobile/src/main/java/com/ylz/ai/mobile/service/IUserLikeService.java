@@ -4,6 +4,7 @@ import com.ylz.ai.mobile.entity.UserLike;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.ylz.ai.mobile.vo.request.AddUserLike;
+import com.ylz.ai.mobile.vo.response.ImageInfo;
 
 import java.util.List;
 
@@ -16,4 +17,5 @@ public interface IUserLikeService extends IService<UserLike> {
     boolean createUserLike(String imageId);
     boolean dropUserLikeByImageId(String id);
     List<UserLike> findUserLikeByUserId(String userId);
+    IPage<ImageInfo> findLikeImagesByCurrent(Integer pageNo, Integer pageSize);
 }

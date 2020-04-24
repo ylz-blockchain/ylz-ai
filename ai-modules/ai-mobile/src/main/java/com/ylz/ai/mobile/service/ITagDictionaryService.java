@@ -4,6 +4,8 @@ import com.ylz.ai.mobile.entity.TagDictionary;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+
 /**
  * @Description: 标签字典
  * @Author: haifeng.lv
@@ -11,6 +13,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface ITagDictionaryService extends IService<TagDictionary> {
     IPage<TagDictionary> findTagDictionaryPageList(TagDictionary tagDictionary, Integer pageNo, Integer pageSize, String sortProp, String sortType);
+    List<TagDictionary> findRecognitionTypes();
     boolean createTagDictionary(TagDictionary tagDictionary);
     boolean alterTagDictionaryById(TagDictionary tagDictionary);
     boolean dropTagDictionaryById(String id);

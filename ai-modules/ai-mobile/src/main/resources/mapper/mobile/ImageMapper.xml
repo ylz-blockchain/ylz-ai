@@ -2,4 +2,37 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ylz.ai.mobile.mapper.ImageMapper">
 
+    <!-- 基础字段 -->
+    <sql id="base_column">
+        im.id as id,
+        im.name as name,
+        im.title as title,
+        im.size as size,
+        im.description as description,
+        im.like_number as likeNumber,
+        im.redirect_number as redirectNumber,
+        im.browse_number as browseNumber,
+        im.prototype_visit_address as prototypeVisitAddress,
+        im.recognition_visit_address as recognitionVisitAddress,
+        im.upload_user_id as uploadUserId
+    </sql>
+
+    <!-- 查询首页数据 -->
+    <select id="selectIndexImagePageList" resultType="com.ylz.ai.mobile.vo.response.ImageInfo">
+        select
+            <include refid="base_column"></include>,
+            (im.like_number+im.redirect_number+im.browse_number) as integration
+        from image im
+        where im.is_open = 1
+        order by integration desc
+    </select>
+    
+    <!-- 查询发现数据 -->
+    <select id="selectDiscoverImagePageList" resultType="com.ylz.ai.mobile.vo.response.ImageInfo">
+        select
+        <include refid="base_column"></include>
+        from image im
+        where im.is_open = 1
+        order by crt_time desc
+    </select>
 </mapper>

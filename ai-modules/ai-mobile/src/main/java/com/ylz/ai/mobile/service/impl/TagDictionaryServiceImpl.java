@@ -18,6 +18,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @Description: 标签字典
@@ -33,6 +34,11 @@ public class TagDictionaryServiceImpl extends ServiceImpl<TagDictionaryMapper, T
         Page<TagDictionary> page = new Page<>(pageNo, pageSize);
         IPage<TagDictionary> pageList = baseMapper.selectPage(page, queryWrapper);
         return pageList;
+    }
+
+    @Override
+    public List<TagDictionary> findRecognitionTypes() {
+        return baseMapper.selectList(null);
     }
 
     @Override

@@ -14,7 +14,9 @@ import io.swagger.annotations.ApiOperation;
 import com.ylz.ai.auth.client.annotation.CheckClientToken;
 import com.ylz.ai.auth.user.annotation.CheckUserToken;
 
- /**
+import java.util.List;
+
+/**
  * @Description: 标签字典
  * @Author: haifeng.lv
  * @Date: 2020-04-21 14:54
@@ -51,6 +53,22 @@ public class TagDictionaryController {
 		result.setResult(pageList);
 		return result;
 	}
+
+	 /**
+	  * @Description 获取标签列表
+	  * @Author haifeng.lv
+	  * @Date 2020/4/24 16:27
+	  * @return: com.ylz.ai.common.vo.Result<java.util.List<com.ylz.ai.mobile.entity.RecognitionType>>
+	  */
+	 @ApiOperation(value="识别类型-获取标签列表", notes="识别类型-获取标签列表")
+	 @GetMapping(value = "/getTagDictionarys")
+	 public Result<List<TagDictionary>> getRecognitionTypes() {
+		 Result<List<TagDictionary>> result = new Result<>();
+		 List<TagDictionary> recognitionTypes = tagDictionaryService.findRecognitionTypes();
+		 result.setSuccess(true);
+		 result.setResult(recognitionTypes);
+		 return result;
+	 }
 	
 	/**
 	 * 添加

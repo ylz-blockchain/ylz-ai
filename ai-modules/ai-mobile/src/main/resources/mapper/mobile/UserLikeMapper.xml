@@ -2,4 +2,20 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ylz.ai.mobile.mapper.UserLikeMapper">
 
+    <select id="selectLikeImagesByCurrent" resultType="com.ylz.ai.mobile.vo.response.ImageInfo">
+        select
+            im.id as id,
+            im.name as name,
+            im.title as title,
+            im.size as size,
+            im.description as description,
+            im.like_number as likeNumber,
+            im.redirect_number as redirectNumber,
+            im.browse_number as browseNumber,
+            im.prototype_visit_address as prototypeVisitAddress,
+            im.recognition_visit_address as recognitionVisitAddress
+        from user_like ul
+        left join image im on im.id = ul.image_id
+        where ul.user_id = #{userId}
+    </select>
 </mapper>
