@@ -1,36 +1,17 @@
 package com.ylz.ai.common.util;
 
 /**
- * @Description
+ * @Description 字符串转换
  * @Author haifeng.lv
  * @Date 2020/1/10 15:53
  */
 public class ConvertUtils {
-    public static boolean isEmpty(Object object) {
-        if (object == null) {
-            return (true);
-        }
-        if ("".equals(object)) {
-            return (true);
-        }
-        if ("null".equals(object)) {
-            return (true);
-        }
-        return (false);
-    }
-
-    public static boolean isNotEmpty(Object object) {
-        if (object != null && !object.equals("") && !object.equals("null")) {
-            return (true);
-        }
-        return (false);
-    }
-
     /**
-     * 将驼峰命名转化成下划线
-     *
-     * @param para
-     * @return
+     * @Description 将驼峰命名转化成下划线
+     * @Author haifeng.lv
+     * @param: para
+     * @Date 2020/4/24 11:07
+     * @return: java.lang.String
      */
     public static String camelToUnderline(String para) {
         if (para.length() < 3) {

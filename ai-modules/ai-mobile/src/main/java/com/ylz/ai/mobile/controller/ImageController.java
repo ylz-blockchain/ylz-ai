@@ -33,7 +33,6 @@ public class ImageController {
     /**
      * 分页列表查询
      *
-     * @param image
      * @param pageNo
      * @param pageSize
      * @param sortProp
@@ -42,13 +41,12 @@ public class ImageController {
      */
     @ApiOperation(value = "照片-分页列表查询", notes = "照片-分页列表查询")
     @GetMapping(value = "/getImagePageList")
-    public Result<IPage<ImageInfo>> getImagePageList(Image image,
-                                                     @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+    public Result<IPage<ImageInfo>> getImagePageList(@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
                                                      @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
                                                      @RequestParam(name = "sortProp", required = false) String sortProp,
                                                      @RequestParam(name = "sortType", required = false) String sortType) {
         Result<IPage<ImageInfo>> result = new Result<>();
-        IPage<ImageInfo> pageList = imageService.findImagePageList(image, pageNo, pageSize, sortProp, sortType);
+        IPage<ImageInfo> pageList = imageService.findImagePageList(pageNo, pageSize, sortProp, sortType);
         result.setSuccess(true);
         result.setResult(pageList);
         return result;

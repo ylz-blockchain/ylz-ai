@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.ylz.ai.common.constant.OrderTypeConstant;
 import com.ylz.ai.common.util.ConvertUtils;
 import com.ylz.ai.common.util.SqlInjectionUtil;
+import com.ylz.ai.common.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.PropertyUtils;
 
@@ -57,9 +58,17 @@ public class QueryGenerator {
         doMultiFieldsOrder(queryWrapper, sortProp, sortType);
     }
 
+    /**
+     * @Description 排序
+     * @Author haifeng.lv
+     * @param: queryWrapper
+     * @param: sortProp
+     * @param: sortType
+     * @Date 2020/4/24 10:53
+     */
     public static void doMultiFieldsOrder(QueryWrapper<?> queryWrapper, String sortProp, String sortType) {
         log.debug("排序规则>>列:" + sortProp + ",排序方式:" + sortType);
-        if (ConvertUtils.isNotEmpty(sortProp) && ConvertUtils.isNotEmpty(sortType)) {
+        if (StringUtils.isNotEmpty(sortProp) && StringUtils.isNotEmpty(sortType)) {
             String[] props = sortProp.split(",");
             String[] types = sortType.split(",");
             if (props.length == types.length) {

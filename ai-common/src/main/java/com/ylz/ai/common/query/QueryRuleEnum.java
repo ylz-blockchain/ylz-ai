@@ -1,6 +1,6 @@
 package com.ylz.ai.common.query;
 
-import com.ylz.ai.common.util.ConvertUtils;
+import com.ylz.ai.common.util.StringUtils;
 
 /**
  * @Description Query 规则 常量
@@ -34,7 +34,7 @@ public enum QueryRuleEnum {
     }
 
     public static QueryRuleEnum getByValue(String value) {
-        if (ConvertUtils.isEmpty(value)) {
+        if (StringUtils.isEmpty(value)) {
             return null;
         }
         for (QueryRuleEnum val : values()) {

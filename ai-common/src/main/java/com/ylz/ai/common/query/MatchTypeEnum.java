@@ -1,6 +1,6 @@
 package com.ylz.ai.common.query;
 
-import com.ylz.ai.common.util.ConvertUtils;
+import com.ylz.ai.common.util.StringUtils;
 
 /**
  * @Description 查询链接规则
@@ -18,7 +18,7 @@ public enum MatchTypeEnum {
     }
 
     public static MatchTypeEnum getByValue(String value) {
-        if (ConvertUtils.isEmpty(value)) {
+        if (StringUtils.isEmpty(value)) {
             return null;
         }
         for (MatchTypeEnum val : values()) {

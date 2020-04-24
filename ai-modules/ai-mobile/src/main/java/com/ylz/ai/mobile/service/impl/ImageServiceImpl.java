@@ -48,8 +48,9 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public IPage<ImageInfo> findImagePageList(Image image, Integer pageNo, Integer pageSize, String sortProp, String sortType) {
-        QueryWrapper<Image> queryWrapper = QueryGenerator.initQueryWrapper(image, sortProp, sortType);
+    public IPage<ImageInfo> findImagePageList(Integer pageNo, Integer pageSize, String sortProp, String sortType) {
+        QueryWrapper<Image> queryWrapper = new QueryWrapper<>();
+        QueryGenerator.doMultiFieldsOrder(queryWrapper, sortProp, sortType);
         queryWrapper.eq("type", ImageTypeConstant.OPEN);
         Page<Image> page = new Page<>(pageNo, pageSize);
         IPage<Image> pageList = baseMapper.selectPage(page, queryWrapper);
