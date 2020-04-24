@@ -62,9 +62,9 @@ public class TagDictionaryController {
 	  */
 	 @ApiOperation(value="识别类型-获取标签列表", notes="识别类型-获取标签列表")
 	 @GetMapping(value = "/getTagDictionarys")
-	 public Result<List<TagDictionary>> getRecognitionTypes() {
+	 public Result<List<TagDictionary>> getTagDictionarys() {
 		 Result<List<TagDictionary>> result = new Result<>();
-		 List<TagDictionary> recognitionTypes = tagDictionaryService.findRecognitionTypes();
+		 List<TagDictionary> recognitionTypes = tagDictionaryService.findTagDictionarys();
 		 result.setSuccess(true);
 		 result.setResult(recognitionTypes);
 		 return result;

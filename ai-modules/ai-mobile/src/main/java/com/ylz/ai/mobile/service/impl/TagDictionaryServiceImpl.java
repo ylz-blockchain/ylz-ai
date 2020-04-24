@@ -37,7 +37,7 @@ public class TagDictionaryServiceImpl extends ServiceImpl<TagDictionaryMapper, T
     }
 
     @Override
-    public List<TagDictionary> findRecognitionTypes() {
+    public List<TagDictionary> findTagDictionarys() {
         return baseMapper.selectList(null);
     }
 

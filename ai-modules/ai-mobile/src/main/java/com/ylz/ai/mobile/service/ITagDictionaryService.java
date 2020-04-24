@@ -13,7 +13,7 @@ import java.util.List;
  */
 public interface ITagDictionaryService extends IService<TagDictionary> {
     IPage<TagDictionary> findTagDictionaryPageList(TagDictionary tagDictionary, Integer pageNo, Integer pageSize, String sortProp, String sortType);
-    List<TagDictionary> findRecognitionTypes();
+    List<TagDictionary> findTagDictionarys();
     boolean createTagDictionary(TagDictionary tagDictionary);
     boolean alterTagDictionaryById(TagDictionary tagDictionary);
     boolean dropTagDictionaryById(String id);
