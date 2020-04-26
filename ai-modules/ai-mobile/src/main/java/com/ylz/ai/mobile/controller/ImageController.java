@@ -67,6 +67,24 @@ public class ImageController {
     }
 
     /**
+     * 我的相册分页列表查询
+     *
+     * @param pageNo
+     * @param pageSize
+     * @return
+     */
+    @ApiOperation(value = "照片-我的相册分页列表查询", notes = "照片-我的相册分页列表查询")
+    @GetMapping(value = "/getMyImagePageList")
+    public Result<IPage<ImageInfo>> getMyImagePageList(@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                     @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
+        Result<IPage<ImageInfo>> result = new Result<>();
+        IPage<ImageInfo> pageList = imageService.findMyImagePageList(pageNo, pageSize);
+        result.setSuccess(true);
+        result.setResult(pageList);
+        return result;
+    }
+
+    /**
      * 添加
      *
      * @param image

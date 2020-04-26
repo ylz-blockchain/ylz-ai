@@ -15,6 +15,7 @@ import java.util.List;
 public interface IImageService extends IService<Image> {
     IPage<ImageInfo> findIndexImagePageList(Integer pageNo, Integer pageSize);
     IPage<ImageInfo> findDiscoverImagePageList(Integer pageNo, Integer pageSize);
+    IPage<ImageInfo> findMyImagePageList(Integer pageNo, Integer pageSize);
     boolean alterImageLikeById(String id, Integer number);
     ImageInfo findImageById(String id);
     boolean createImage(Image image);

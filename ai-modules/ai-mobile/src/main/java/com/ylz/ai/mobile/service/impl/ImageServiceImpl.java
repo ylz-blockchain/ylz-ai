@@ -1,5 +1,6 @@
 package com.ylz.ai.mobile.service.impl;
 
+import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.ylz.ai.common.context.BaseContextHandler;
 import com.ylz.ai.mobile.entity.Image;
 import com.ylz.ai.mobile.entity.ImageComment;
@@ -74,6 +75,24 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
         IPage<ImageInfo> response = baseMapper.selectDiscoverImagePageList(page);
         // 设置喜欢与关注
         setLikeAndAttention(response.getRecords());
+        return response;
+    }
+
+    @Override
+    public IPage<ImageInfo> findMyImagePageList(Integer pageNo, Integer pageSize) {
+        Page<Image> page = new Page(pageNo, pageSize);
+        QueryWrapper<Image> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("upload_user_id", BaseContextHandler.getUserId());
+        page.setOrders(Arrays.asList(OrderItem.desc("crt_time")));
+        IPage<Image> imageIPage = baseMapper.selectPage(page, queryWrapper);
+        IPage<ImageInfo> response = new Page<>();
+        BeanUtils.copyProperties(imageIPage, response);
+        response.setRecords(imageIPage.getRecords().stream().map(record -> {
+            ImageInfo imageInfo = new ImageInfo();
+            BeanUtils.copyProperties(record, imageInfo);
+            return imageInfo;
+        }).collect(Collectors.toList()));
+
         return response;
     }
 
