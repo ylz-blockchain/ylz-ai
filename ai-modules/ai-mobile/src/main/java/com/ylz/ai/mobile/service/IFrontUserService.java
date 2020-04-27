@@ -18,5 +18,5 @@ public interface IFrontUserService extends IService<FrontUser> {
     boolean dropFrontUserById(String id);
     boolean dropFrontUserBatch(String ids);
     FrontUser findFrontUserById(String id);
-    void validate(String id, String name, HttpServletRequest httpServletRequest);
+    void validate(String code, String name, HttpServletRequest httpServletRequest);
 }

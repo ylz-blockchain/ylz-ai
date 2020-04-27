@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.ylz.ai.mobile.vo.response.ImageInfo;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -13,7 +14,7 @@ import java.util.List;
  * @Date: 2020-04-20 14:25
  */
 public interface IImageService extends IService<Image> {
-    IPage<ImageInfo> findIndexImagePageList(Integer pageNo, Integer pageSize);
+    IPage<ImageInfo> findIndexImagePageList(Integer pageNo, Integer pageSize, HttpServletRequest request) throws Exception;
     IPage<ImageInfo> findDiscoverImagePageList(Integer pageNo, Integer pageSize);
     IPage<ImageInfo> findMyImagePageList(Integer pageNo, Integer pageSize);
     boolean alterImageLikeById(String id, Integer number);

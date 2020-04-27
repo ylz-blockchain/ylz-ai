@@ -1,5 +1,6 @@
 package com.ylz.ai.mobile.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.ylz.ai.mobile.entity.FrontUser;
 import com.ylz.ai.mobile.mapper.FrontUserMapper;
 import com.ylz.ai.mobile.service.IFrontUserService;
@@ -7,7 +8,9 @@ import com.ylz.ai.common.error.ErrCodeBaseConstant;
 import com.ylz.ai.common.exception.BusinessException;
 import com.ylz.ai.common.query.QueryGenerator;
 import com.ylz.ai.common.util.EntityUtils;
+import com.ylz.ai.mobile.weixin.WeixinTemplate;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import org.springframework.beans.BeanUtils;
@@ -28,6 +31,9 @@ import java.util.Arrays;
  */
 @Service
 public class FrontUserServiceImpl extends ServiceImpl<FrontUserMapper, FrontUser> implements IFrontUserService {
+    @Autowired
+    private WeixinTemplate weixinTemplate;
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public IPage<FrontUser> findFrontUserPageList(FrontUser frontUser, Integer pageNo, Integer pageSize, String sortProp, String sortType) {
@@ -86,12 +92,16 @@ public class FrontUserServiceImpl extends ServiceImpl<FrontUserMapper, FrontUser
     /**
      * @Description 验证信息(没有则创建)
      * @Author haifeng.lv
-     * @param: id
+     * @param: code 登录时获取的 code
      * @param: name
      * @Date 2020/4/17 14:25
      */
     @Override
-    public void validate(String id, String name, HttpServletRequest httpServletRequest) {
+    public void validate(String code, String name, HttpServletRequest httpServletRequest) {
+        // 获取微信返回信息
+        JSONObject wxResult = weixinTemplate.login(code);
+        String id = (String) wxResult.get("openid");
+
         FrontUser frontUser = baseMapper.selectById(id);
 
         if (null == frontUser) {

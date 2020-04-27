@@ -1,5 +1,7 @@
 package com.ylz.ai.mobile.controller;
 
+import com.ylz.ai.auth.client.annotation.IgnoreClientToken;
+import com.ylz.ai.auth.user.annotation.IgnoreUserToken;
 import com.ylz.ai.common.vo.Result;
 import com.ylz.ai.mobile.entity.Image;
 import com.ylz.ai.mobile.service.IImageService;
@@ -14,6 +16,8 @@ import io.swagger.annotations.ApiOperation;
 
 import com.ylz.ai.auth.client.annotation.CheckClientToken;
 import com.ylz.ai.auth.user.annotation.CheckUserToken;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @Description: 照片
@@ -39,10 +43,13 @@ public class ImageController {
      */
     @ApiOperation(value = "照片-首页分页列表查询", notes = "照片-首页分页列表查询")
     @GetMapping(value = "/getIndexImagePageList")
+    @IgnoreUserToken
+    @IgnoreClientToken
     public Result<IPage<ImageInfo>> getIndexImagePageList(@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
-                                                     @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
+                                                          @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+                                                          HttpServletRequest request) throws Exception {
         Result<IPage<ImageInfo>> result = new Result<>();
-        IPage<ImageInfo> pageList = imageService.findIndexImagePageList(pageNo, pageSize);
+        IPage<ImageInfo> pageList = imageService.findIndexImagePageList(pageNo, pageSize, request);
         result.setSuccess(true);
         result.setResult(pageList);
         return result;
@@ -57,6 +64,8 @@ public class ImageController {
      */
     @ApiOperation(value = "照片-发现分页列表查询", notes = "照片-发现分页列表查询")
     @GetMapping(value = "/getDiscoverImagePageList")
+    @IgnoreUserToken
+    @IgnoreClientToken
     public Result<IPage<ImageInfo>> getDiscoverImagePageList(@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
                                                      @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
         Result<IPage<ImageInfo>> result = new Result<>();
@@ -75,6 +84,8 @@ public class ImageController {
      */
     @ApiOperation(value = "照片-我的相册分页列表查询", notes = "照片-我的相册分页列表查询")
     @GetMapping(value = "/getMyImagePageList")
+    @IgnoreUserToken
+    @IgnoreClientToken
     public Result<IPage<ImageInfo>> getMyImagePageList(@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
                                                      @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
         Result<IPage<ImageInfo>> result = new Result<>();

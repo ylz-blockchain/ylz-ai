@@ -1,7 +1,10 @@
 package com.ylz.ai.mobile.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
+import com.ylz.ai.auth.user.config.AuthUserConfig;
+import com.ylz.ai.auth.user.service.AuthUserService;
 import com.ylz.ai.common.context.BaseContextHandler;
+import com.ylz.ai.common.vo.AuthInfo;
 import com.ylz.ai.mobile.entity.Image;
 import com.ylz.ai.mobile.entity.ImageComment;
 import com.ylz.ai.mobile.entity.UserLike;
@@ -15,6 +18,7 @@ import com.ylz.ai.common.util.EntityUtils;
 import com.ylz.ai.mobile.service.IUserLikeService;
 import com.ylz.ai.mobile.vo.response.ImageInfo;
 import com.ylz.ai.mobile.vo.response.UserInfo;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +30,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -42,6 +47,10 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
     private IUserLikeService userLikeService;
     @Autowired
     private IAttentionUserService attentionUserService;
+    @Autowired
+    private AuthUserService authUserService;
+    @Autowired
+    private AuthUserConfig userAuthConfig;
 
     /**
      * @Description 查询首页数据
@@ -53,11 +62,17 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public IPage<ImageInfo> findIndexImagePageList(Integer pageNo, Integer pageSize) {
+    public IPage<ImageInfo> findIndexImagePageList(Integer pageNo, Integer pageSize, HttpServletRequest request) throws Exception {
         Page<ImageInfo> page = new Page(pageNo, pageSize);
         IPage<ImageInfo> response = baseMapper.selectIndexImagePageList(page);
-        // 设置喜欢与关注
-        setLikeAndAttention(response.getRecords());
+        // 获取用户 token
+        String token = request.getHeader(userAuthConfig.getTokenHeader());
+        if(StringUtils.isNotBlank(token)) {
+            AuthInfo infoFromToken = authUserService.getInfoFromToken(token);
+            BaseContextHandler.setUserId(infoFromToken.getId());
+            // 设置喜欢与关注
+            setLikeAndAttention(response.getRecords());
+        }
         return response;
     }
 

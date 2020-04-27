@@ -6,10 +6,12 @@ import com.ylz.ai.auth.client.interceptor.AuthClientInterceptor;
 import com.ylz.ai.auth.user.interceptor.AuthUserInterceptor;
 import com.ylz.ai.common.exception.GlobalExceptionHandler;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -53,6 +55,11 @@ public class WebConfiguration implements WebMvcConfigurer {
     @Bean
     AuthUserInterceptor getUserAuthRestInterceptor() {
         return new AuthUserInterceptor();
+    }
+
+    @Bean
+    public RestTemplate restTemplate(RestTemplateBuilder builder) {
+        return builder.build();
     }
 
     /**

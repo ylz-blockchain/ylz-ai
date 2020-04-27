@@ -36,13 +36,13 @@ public class FrontUserService implements IFrontUserService {
     @Override
     public String getToken(FrontAuthenticationRequest request) throws Exception {
         frontUserFeign.validate(request);
-        if(redisTemplate.hasKey(request.getId())) {
-            return (String) redisTemplate.opsForValue().get(request.getId());
+        if(redisTemplate.hasKey(request.getCode())) {
+            return (String) redisTemplate.opsForValue().get(request.getCode());
         }
 
         // 获取 token
-        String token = userTokenHelper.generateToken(new AuthInfo(request.getId(), request.getName()));
-        redisTemplate.opsForValue().set(request.getId(), token, 60 * 10, TimeUnit.SECONDS);
+        String token = userTokenHelper.generateToken(new AuthInfo(request.getCode(), request.getName()));
+        redisTemplate.opsForValue().set(request.getCode(), token, 60 * 10, TimeUnit.SECONDS);
 
         return token;
     }

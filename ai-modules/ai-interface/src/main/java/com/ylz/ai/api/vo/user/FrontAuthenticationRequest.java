@@ -10,9 +10,9 @@ import lombok.Data;
 @Data
 public class FrontAuthenticationRequest {
     /**
-     * openid
+     * 登录时获取的 code
      */
-    private String id;
+    private String code;
     /**
      * 名称
      */

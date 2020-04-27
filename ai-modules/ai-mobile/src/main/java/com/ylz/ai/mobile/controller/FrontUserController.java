@@ -42,7 +42,7 @@ public class FrontUserController {
     @IgnoreUserToken
     public Result<String> validate(@RequestBody FrontAuthenticationRequest request, HttpServletRequest httpServletRequest) {
         Result<String> result = new Result<>();
-        frontUserService.validate(request.getId(), request.getName(), httpServletRequest);
+        frontUserService.validate(request.getCode(), request.getName(), httpServletRequest);
         result.setSuccess(true);
         result.setResult("validate success");
         return result;
