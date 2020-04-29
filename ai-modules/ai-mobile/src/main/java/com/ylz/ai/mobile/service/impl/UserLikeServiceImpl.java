@@ -3,6 +3,9 @@ package com.ylz.ai.mobile.service.impl;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ylz.ai.common.context.BaseContextHandler;
+import com.ylz.ai.common.error.ErrorCode;
+import com.ylz.ai.common.exception.BusinessException;
+import com.ylz.ai.mobile.constant.ErrCodeConstant;
 import com.ylz.ai.mobile.entity.Image;
 import com.ylz.ai.mobile.entity.UserLike;
 import com.ylz.ai.mobile.mapper.UserLikeMapper;
@@ -35,6 +38,14 @@ public class UserLikeServiceImpl extends ServiceImpl<UserLikeMapper, UserLike> i
     @Transactional(rollbackFor = Exception.class)
     public boolean createUserLike(String imageId) {
         String userId = BaseContextHandler.getUserId();
+        QueryWrapper<UserLike> userLikeQueryWrapper = new QueryWrapper();
+        userLikeQueryWrapper.eq("user_id", userId);
+        userLikeQueryWrapper.eq("image_id", imageId);
+        List<UserLike> userLikes = this.baseMapper.selectList(userLikeQueryWrapper);
+        if (!userLikes.isEmpty()) {
+            throw new BusinessException(ErrCodeConstant.LIKE_REPEAT_ERROR);
+        }
+
         UserLike userLike = new UserLike();
         EntityUtils.setDefaultValue(userLike);
         userLike.setImageId(imageId);

@@ -17,8 +17,27 @@
         im.upload_user_id as uploadUserId
     </sql>
 
+    <resultMap id="getUserInfosByUploadId" type="com.ylz.ai.mobile.vo.response.ImageInfo">
+        <association property="userInfo" select="selectUserInfo" column="{id=uploadUserId}"></association>
+    </resultMap>
+
+    <select id="selectUserInfo" resultType="com.ylz.ai.mobile.vo.response.UserInfo">
+        select
+            user.id as id,
+            user.head_image as headImage,
+            user.ip as ip,
+            user.last_login_time as lastLoginTime,
+            user.name as name,
+            user.phone_number as phoneNumber,
+            user.sex as sex,
+            user.wx_number as wxNumber,
+            user.description as description
+        from front_user user
+        where id = #{id}
+    </select>
+
     <!-- 查询首页数据 -->
-    <select id="selectIndexImagePageList" resultType="com.ylz.ai.mobile.vo.response.ImageInfo">
+    <select id="selectIndexImagePageList" resultMap="getUserInfosByUploadId">
         select
             <include refid="base_column"></include>,
             (im.like_number+im.redirect_number+im.browse_number) as integration
@@ -28,7 +47,7 @@
     </select>
     
     <!-- 查询发现数据 -->
-    <select id="selectDiscoverImagePageList" resultType="com.ylz.ai.mobile.vo.response.ImageInfo">
+    <select id="selectDiscoverImagePageList" resultMap="getUserInfosByUploadId">
         select
         <include refid="base_column"></include>
         from image im

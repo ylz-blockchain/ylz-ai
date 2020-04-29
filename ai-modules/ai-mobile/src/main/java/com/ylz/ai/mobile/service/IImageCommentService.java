@@ -18,4 +18,5 @@ public interface IImageCommentService extends IService<ImageComment> {
     boolean dropImageCommentById(String id);
     boolean dropImageCommentBatch(String ids);
     List<ImageCommentInfo> findTagDictionaryById(String id);
+    List<ImageCommentInfo> findImageCommentsByImageId(String id);
 }

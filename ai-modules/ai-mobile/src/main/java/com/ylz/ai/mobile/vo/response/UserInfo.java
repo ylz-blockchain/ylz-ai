@@ -1,5 +1,7 @@
 package com.ylz.ai.mobile.vo.response;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -10,23 +12,23 @@ import java.time.LocalDateTime;
  * @Date 2020/4/23 10:00
  */
 @Data
+@ApiModel(value = "userInfo", description = "userInfo")
 public class UserInfo {
-    /**描述*/
+    @ApiModelProperty(value = "描述")
     private String description;
-    /**headImage*/
+    @ApiModelProperty(value = "头像")
     private String headImage;
-    /**id*/
     private String id;
-    /**ip*/
+    @ApiModelProperty(value = "ip 地址")
     private String ip;
-    /**lastLoginTime*/
+    @ApiModelProperty(value = "最后登录时间")
     private LocalDateTime lastLoginTime;
-    /**姓名(可以是微信号)*/
+    @ApiModelProperty(value = "昵称")
     private String name;
-    /**phoneNumber*/
+    @ApiModelProperty(value = "手机号")
     private String phoneNumber;
-    /**sex*/
+    @ApiModelProperty(value = "性别")
     private Integer sex;
-    /**wxNumber*/
+    @ApiModelProperty(value = "微信号")
     private String wxNumber;
 }

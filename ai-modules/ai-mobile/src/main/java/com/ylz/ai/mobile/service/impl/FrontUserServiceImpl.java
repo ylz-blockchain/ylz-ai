@@ -1,28 +1,31 @@
 package com.ylz.ai.mobile.service.impl;
 
-import com.alibaba.fastjson.JSONObject;
+import com.ylz.ai.api.vo.user.FrontAuthenticationRequest;
+import com.ylz.ai.api.vo.user.FrontAuthenticationResponse;
+import com.ylz.ai.common.context.BaseContextHandler;
+import com.ylz.ai.common.util.MD5Util;
+import com.ylz.ai.mobile.constant.ErrCodeConstant;
+import com.ylz.ai.mobile.constant.UserSexConstant;
 import com.ylz.ai.mobile.entity.FrontUser;
+import com.ylz.ai.mobile.factory.LoginFactory;
 import com.ylz.ai.mobile.mapper.FrontUserMapper;
 import com.ylz.ai.mobile.service.IFrontUserService;
 import com.ylz.ai.common.error.ErrCodeBaseConstant;
 import com.ylz.ai.common.exception.BusinessException;
-import com.ylz.ai.common.query.QueryGenerator;
 import com.ylz.ai.common.util.EntityUtils;
-import com.ylz.ai.mobile.weixin.WeixinTemplate;
+import com.ylz.ai.mobile.service.ILoginService;
+import com.ylz.ai.mobile.vo.request.AddFrontUser;
+import com.ylz.ai.mobile.vo.response.UserInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.transaction.annotation.Transactional;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 
 /**
  * @Description: 前端用户
@@ -32,61 +35,23 @@ import java.util.Arrays;
 @Service
 public class FrontUserServiceImpl extends ServiceImpl<FrontUserMapper, FrontUser> implements IFrontUserService {
     @Autowired
-    private WeixinTemplate weixinTemplate;
+    private LoginFactory loginFactory;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public IPage<FrontUser> findFrontUserPageList(FrontUser frontUser, Integer pageNo, Integer pageSize, String sortProp, String sortType) {
-        QueryWrapper<FrontUser> queryWrapper = QueryGenerator.initQueryWrapper(frontUser, sortProp, sortType);
-        Page<FrontUser> page = new Page<>(pageNo, pageSize);
-        IPage<FrontUser> pageList = baseMapper.selectPage(page, queryWrapper);
-        return pageList;
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public boolean createFrontUser(FrontUser frontUser) {
-        EntityUtils.setDefaultValue(frontUser);
-        return super.save(frontUser);
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public boolean alterFrontUserById(FrontUser frontUser) {
-        FrontUser frontUserEntity = baseMapper.selectById(frontUser.getId());
+    public boolean alterFrontUserById(AddFrontUser addFrontUser) {
+        FrontUser frontUserEntity = baseMapper.selectById(BaseContextHandler.getUserId());
         if (frontUserEntity == null) {
             throw new BusinessException(ErrCodeBaseConstant.COMMON_PARAM_ERR);
         } else {
-            BeanUtils.copyProperties(frontUser, frontUserEntity);
+            BeanUtils.copyProperties(addFrontUser, frontUserEntity);
         }
         EntityUtils.setDefaultValue(frontUserEntity);
+        if(StringUtils.isNotBlank(frontUserEntity.getPassword())) {
+            frontUserEntity.setPassword(MD5Util.md5(frontUserEntity.getPassword()));
+        }
+
         return super.updateById(frontUserEntity);
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public boolean dropFrontUserById(String id) {
-        return super.removeById(id);
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public boolean dropFrontUserBatch(String ids) {
-        if (StringUtils.isBlank(ids)) {
-            throw new BusinessException(ErrCodeBaseConstant.COMMON_PARAM_ERR);
-        } else {
-            return super.removeByIds(Arrays.asList(ids.split(",")));
-        }
-    }
-
-    @Override
-    public FrontUser findFrontUserById(String id) {
-        FrontUser frontUser = super.getById(id);
-        if (null == frontUser) {
-            throw new BusinessException(ErrCodeBaseConstant.COMMON_PARAM_ERR);
-        } else {
-            return frontUser;
-        }
     }
 
     /**
@@ -97,27 +62,38 @@ public class FrontUserServiceImpl extends ServiceImpl<FrontUserMapper, FrontUser
      * @Date 2020/4/17 14:25
      */
     @Override
-    public void validate(String code, String name, HttpServletRequest httpServletRequest) {
-        // 获取微信返回信息
-        JSONObject wxResult = weixinTemplate.login(code);
-        String id = (String) wxResult.get("openid");
+    @Transactional(rollbackFor = Exception.class)
+    public FrontAuthenticationResponse login(FrontAuthenticationRequest request, HttpServletRequest httpServletRequest) {
+        ILoginService loginService = loginFactory.createLoginService(request.getType());
+        if (null == loginService) {
+            throw new BusinessException(ErrCodeConstant.COMMON_PARAM_ERR);
+        }
+        FrontUser frontUser = loginService.login(request);
+        FrontAuthenticationResponse response = new FrontAuthenticationResponse();
+        frontUser.setIp(httpServletRequest.getRemoteAddr());
+        frontUser.setLastLoginTime(LocalDateTime.now());
 
-        FrontUser frontUser = baseMapper.selectById(id);
-
-        if (null == frontUser) {
-            frontUser = new FrontUser();
-            frontUser.setId(id);
+        if (StringUtils.isEmpty(frontUser.getId())) {
             EntityUtils.setDefaultValue(frontUser);
-            frontUser.setName(name);
-            // 默认为男
-            frontUser.setSex(0);
-            frontUser.setIp(httpServletRequest.getRemoteAddr());
-            frontUser.setLastLoginTime(LocalDateTime.now());
+            // 设置默认属性
+            frontUser.setName("");
+            frontUser.setQqNumber("");
+            frontUser.setSex(UserSexConstant.Man);
             baseMapper.insert(frontUser);
         } else {
-            frontUser.setLastLoginTime(LocalDateTime.now());
             baseMapper.updateById(frontUser);
         }
+        BeanUtils.copyProperties(frontUser, response);
 
+        return response;
+    }
+
+    @Override
+    public UserInfo findUserInfoBuUserId(String id) {
+        FrontUser frontUser = baseMapper.selectById(id);
+        UserInfo userInfo = new UserInfo();
+        BeanUtils.copyProperties(frontUser, userInfo);
+
+        return userInfo;
     }
 }

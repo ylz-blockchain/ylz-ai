@@ -1,7 +1,6 @@
 package com.ylz.ai.admin.controller;
 
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -10,7 +9,6 @@ import com.ylz.ai.admin.service.IUserService;
 import com.ylz.ai.admin.vo.response.UserInfo;
 import com.ylz.ai.api.vo.system.AuthUser;
 import com.ylz.ai.auth.client.annotation.CheckClientToken;
-import com.ylz.ai.auth.client.annotation.IgnoreClientToken;
 import com.ylz.ai.auth.user.annotation.CheckUserToken;
 import com.ylz.ai.auth.user.annotation.IgnoreUserToken;
 import com.ylz.ai.common.vo.Result;
@@ -44,7 +42,6 @@ public class UserController {
    * @Date 2019/12/16 16:43
    * @return: com.lvhaifeng.cloud.common.vo.Result<com.lvhaifeng.cloud.api.vo.system.AuthUser>
    */
-   @IgnoreClientToken
    @IgnoreUserToken
    @PostMapping("/getUserInfoByUsername")
    public Result<AuthUser> getUserInfoByUsername(@RequestParam("username") String username) {
@@ -74,7 +71,6 @@ public class UserController {
     * @Date 2020/1/6 17:06
     * @return: com.lvhaifeng.cloud.common.vo.Result<com.lvhaifeng.cloud.admin.vo.response.UserInfo>
     */
-   @IgnoreClientToken
    @IgnoreUserToken
    @GetMapping("/getUserInfoByToken")
    public Result<UserInfo> getUserInfoByToken(@RequestParam("token") String token) throws Exception {

@@ -1,6 +1,7 @@
 package com.ylz.ai.mobile.service.impl;
 
 import com.ylz.ai.common.context.BaseContextHandler;
+import com.ylz.ai.mobile.constant.ErrCodeConstant;
 import com.ylz.ai.mobile.entity.AttentionUser;
 import com.ylz.ai.mobile.entity.FrontUser;
 import com.ylz.ai.mobile.mapper.AttentionUserMapper;
@@ -48,7 +49,7 @@ public class AttentionUserServiceImpl extends ServiceImpl<AttentionUserMapper, A
         QueryWrapper<AttentionUser> attentionUserQueryWrapper = new QueryWrapper();
         attentionUserQueryWrapper.eq("attention_user_id", BaseContextHandler.getUserId());
         List<AttentionUser> attentionUsers = baseMapper.selectList(attentionUserQueryWrapper);
-        if(attentionUsers.isEmpty()) {
+        if (attentionUsers.isEmpty()) {
             return new ArrayList<>();
         }
 
@@ -76,7 +77,7 @@ public class AttentionUserServiceImpl extends ServiceImpl<AttentionUserMapper, A
         QueryWrapper<AttentionUser> attentionUserQueryWrapper = new QueryWrapper();
         attentionUserQueryWrapper.eq("be_attention_user_id", id);
         List<AttentionUser> attentionUsers = baseMapper.selectList(attentionUserQueryWrapper);
-        if(attentionUsers.isEmpty()) {
+        if (attentionUsers.isEmpty()) {
             return new ArrayList<>();
         }
 
@@ -100,9 +101,22 @@ public class AttentionUserServiceImpl extends ServiceImpl<AttentionUserMapper, A
      */
     @Override
     public boolean attentionUsers(String id) {
+        FrontUser frontUser = frontUserService.getById(id);
+        if (null == frontUser) {
+            throw new BusinessException(ErrCodeConstant.NO_USER_ERROR);
+        }
+        String userId = BaseContextHandler.getUserId();
+        QueryWrapper<AttentionUser> queryWrapper = new QueryWrapper();
+        queryWrapper.eq("attention_user_id", userId);
+        queryWrapper.eq("be_attention_user_id", id);
+        List<AttentionUser> attentionUsers = baseMapper.selectList(queryWrapper);
+        if (!attentionUsers.isEmpty()) {
+            throw new BusinessException(ErrCodeConstant.ATTENTION_REPEAT_ERROR);
+        }
+
         AttentionUser attentionUser = new AttentionUser();
         EntityUtils.setDefaultValue(attentionUser);
-        attentionUser.setAttentionUserId(BaseContextHandler.getUserId());
+        attentionUser.setAttentionUserId(userId);
         attentionUser.setBeAttentionUserId(id);
 
         return super.save(attentionUser);
@@ -117,6 +131,11 @@ public class AttentionUserServiceImpl extends ServiceImpl<AttentionUserMapper, A
      */
     @Override
     public boolean cleanAttentionUsers(String id) {
+        FrontUser frontUser = frontUserService.getById(id);
+        if (null == frontUser) {
+            throw new BusinessException(ErrCodeConstant.NO_USER_ERROR);
+        }
+
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("attention_user_id", BaseContextHandler.getUserId());
         queryWrapper.eq("be_attention_user_id", id);

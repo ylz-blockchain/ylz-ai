@@ -1,6 +1,7 @@
 package com.ylz.ai.auth.server.modules.user.service.impl;
 
 import com.ylz.ai.api.vo.user.FrontAuthenticationRequest;
+import com.ylz.ai.api.vo.user.FrontAuthenticationResponse;
 import com.ylz.ai.auth.server.auth.user.UserTokenHelper;
 import com.ylz.ai.auth.server.feign.IFrontUserFeign;
 import com.ylz.ai.auth.server.modules.user.service.IFrontUserService;
@@ -34,16 +35,19 @@ public class FrontUserService implements IFrontUserService {
      * @return: java.lang.String
      */
     @Override
-    public String getToken(FrontAuthenticationRequest request) throws Exception {
-        frontUserFeign.validate(request);
-        if(redisTemplate.hasKey(request.getCode())) {
-            return (String) redisTemplate.opsForValue().get(request.getCode());
+    public FrontAuthenticationResponse getToken(FrontAuthenticationRequest request) throws Exception {
+        FrontAuthenticationResponse response = frontUserFeign.login(request).getResult();
+        String token;
+
+        if(redisTemplate.hasKey(response.getId())) {
+            token = (String) redisTemplate.opsForValue().get(response.getId());
+        } else {
+            // 获取 token
+            token = userTokenHelper.generateToken(new AuthInfo(response.getId(), response.getName()));
+            redisTemplate.opsForValue().set(response.getId(), token, 60 * 10, TimeUnit.SECONDS);
         }
 
-        // 获取 token
-        String token = userTokenHelper.generateToken(new AuthInfo(request.getCode(), request.getName()));
-        redisTemplate.opsForValue().set(request.getCode(), token, 60 * 10, TimeUnit.SECONDS);
-
-        return token;
+        response.setToken(token);
+        return response;
     }
 }

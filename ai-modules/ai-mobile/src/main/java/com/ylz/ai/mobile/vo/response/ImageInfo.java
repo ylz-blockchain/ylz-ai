@@ -1,11 +1,9 @@
 package com.ylz.ai.mobile.vo.response;
 
-import com.ylz.ai.mobile.entity.ImageComment;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -62,7 +60,7 @@ public class ImageInfo {
      */
     @ApiModelProperty(value = "大小")
     private Integer size;
-    private String uploadUserId;
+    private UserInfo userInfo;
 
     /**
      * 是否被当前用户点赞
@@ -80,5 +78,5 @@ public class ImageInfo {
      * 照片评论
      */
     @ApiModelProperty(value = "照片评论")
-    private List<ImageComment> comments;
+    private List<ImageCommentInfo> comments;
 }

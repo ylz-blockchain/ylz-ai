@@ -34,6 +34,7 @@ public class UserImageRedirectServiceImpl extends ServiceImpl<UserImageRedirectM
     private IImageService imageService;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void createUserImageRedirect(String imageId, String redirectPlace, String description) {
         String userId = BaseContextHandler.getUserId();
         UserImageRedirect userImageRedirect = new UserImageRedirect();
@@ -45,6 +46,9 @@ public class UserImageRedirectServiceImpl extends ServiceImpl<UserImageRedirectM
         // 转发目标地
         userImageRedirect.setRedirectPlace(redirectPlace);
 
+        // 修改转发数
         imageService.alterImageRedirectById(imageId);
+        // 添加转发记录
+        this.baseMapper.insert(userImageRedirect);
     }
 }

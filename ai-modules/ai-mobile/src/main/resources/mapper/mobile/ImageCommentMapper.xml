@@ -2,4 +2,33 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ylz.ai.mobile.mapper.ImageCommentMapper">
 
+    <resultMap id="getUserInfosByUserId" type="com.ylz.ai.mobile.vo.response.ImageCommentInfo">
+        <association property="userInfo" select="selectUserInfo" column="{id=commentUserId}"></association>
+    </resultMap>
+
+    <select id="selectUserInfo" resultType="com.ylz.ai.mobile.vo.response.UserInfo">
+        select
+            user.id as id,
+            user.head_image as headImage,
+            user.ip as ip,
+            user.last_login_time as lastLoginTime,
+            user.name as name,
+            user.phone_number as phoneNumber,
+            user.sex as sex,
+            user.wx_number as wxNumber,
+            user.description as description
+        from front_user user
+        where id = #{id}
+    </select>
+
+    <!-- 查询照片评论 -->
+    <select id="selectImageCommentsByImageId" resultMap="getUserInfosByUserId" >
+        select
+            id as id,
+            comment_image_id as commentImageId,
+            comment_description as commentDescription,
+            comment_user_id as commentUserId
+        from image_comment
+        where comment_image_id = #{id}
+    </select>
 </mapper>

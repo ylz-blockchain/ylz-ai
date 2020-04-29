@@ -23,4 +23,6 @@ public class ImageCommentInfo {
     private String commentUserId;
     /**id*/
     private String id;
+    @ApiModelProperty(value = "评论用户基本信息")
+    private UserInfo userInfo;
 }

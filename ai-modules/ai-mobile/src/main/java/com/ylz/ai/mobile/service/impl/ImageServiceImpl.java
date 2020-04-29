@@ -1,25 +1,25 @@
 package com.ylz.ai.mobile.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
-import com.ylz.ai.auth.user.config.AuthUserConfig;
 import com.ylz.ai.auth.user.service.AuthUserService;
 import com.ylz.ai.common.context.BaseContextHandler;
-import com.ylz.ai.common.vo.AuthInfo;
+import com.ylz.ai.mobile.constant.ErrCodeConstant;
 import com.ylz.ai.mobile.entity.Image;
 import com.ylz.ai.mobile.entity.ImageComment;
 import com.ylz.ai.mobile.entity.UserLike;
 import com.ylz.ai.mobile.mapper.ImageCommentMapper;
 import com.ylz.ai.mobile.mapper.ImageMapper;
-import com.ylz.ai.mobile.service.IAttentionUserService;
-import com.ylz.ai.mobile.service.IImageService;
+import com.ylz.ai.mobile.service.*;
 import com.ylz.ai.common.error.ErrCodeBaseConstant;
 import com.ylz.ai.common.exception.BusinessException;
 import com.ylz.ai.common.util.EntityUtils;
-import com.ylz.ai.mobile.service.IUserLikeService;
+import com.ylz.ai.mobile.vo.response.ImageCommentInfo;
 import com.ylz.ai.mobile.vo.response.ImageInfo;
 import com.ylz.ai.mobile.vo.response.UserInfo;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import org.springframework.beans.BeanUtils;
@@ -31,6 +31,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -42,15 +43,22 @@ import java.util.stream.Collectors;
 @Service
 public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements IImageService {
     @Resource
-    private ImageCommentMapper imageCommentMapper;
+    private IImageCommentService imageCommentService;
     @Autowired
     private IUserLikeService userLikeService;
     @Autowired
     private IAttentionUserService attentionUserService;
     @Autowired
     private AuthUserService authUserService;
+    @Resource
+    private ResourceLoader resourceLoader;
     @Autowired
-    private AuthUserConfig userAuthConfig;
+    private IFrontUserService frontUserService;
+    /**
+     * 上传路径
+     */
+    @Value("${upload.path}")
+    private String uploadPath;
 
     /**
      * @Description 查询首页数据
@@ -66,10 +74,7 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
         Page<ImageInfo> page = new Page(pageNo, pageSize);
         IPage<ImageInfo> response = baseMapper.selectIndexImagePageList(page);
         // 获取用户 token
-        String token = request.getHeader(userAuthConfig.getTokenHeader());
-        if(StringUtils.isNotBlank(token)) {
-            AuthInfo infoFromToken = authUserService.getInfoFromToken(token);
-            BaseContextHandler.setUserId(infoFromToken.getId());
+        if(authUserService.setCurrentUserInfo(request)) {
             // 设置喜欢与关注
             setLikeAndAttention(response.getRecords());
         }
@@ -85,11 +90,14 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
      * @return: com.baomidou.mybatisplus.core.metadata.IPage<com.ylz.ai.mobile.vo.response.ImageInfo>
      */
     @Override
-    public IPage<ImageInfo> findDiscoverImagePageList(Integer pageNo, Integer pageSize) {
+    public IPage<ImageInfo> findDiscoverImagePageList(Integer pageNo, Integer pageSize, HttpServletRequest request) throws Exception {
         Page<ImageInfo> page = new Page(pageNo, pageSize);
         IPage<ImageInfo> response = baseMapper.selectDiscoverImagePageList(page);
-        // 设置喜欢与关注
-        setLikeAndAttention(response.getRecords());
+        // 获取用户 token
+        if(authUserService.setCurrentUserInfo(request)) {
+            // 设置喜欢与关注
+            setLikeAndAttention(response.getRecords());
+        }
         return response;
     }
 
@@ -130,9 +138,11 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
 
             ImageInfo imageInfo = new ImageInfo();
             BeanUtils.copyProperties(image, imageInfo);
-            QueryWrapper<ImageComment> queryWrapper = new QueryWrapper();
-            queryWrapper.eq("comment_image_id", image.getId());
-            imageInfo.setComments(imageCommentMapper.selectList(queryWrapper));
+            imageInfo.setUserInfo(frontUserService.findUserInfoBuUserId(image.getUploadUserId()));
+
+            // 查询评论信息
+            List<ImageCommentInfo> imageCommentInfos = imageCommentService.findImageCommentsByImageId(image.getId());
+            imageInfo.setComments(imageCommentInfos);
             return imageInfo;
         }
     }
@@ -143,6 +153,18 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
         image.setUploadUserId(BaseContextHandler.getUserId());
         // 默认 0点赞
         image.setLikeNumber(0);
+        // 默认 0转发
+        image.setRedirectNumber(0);
+        // 默认 0浏览
+        image.setBrowseNumber(0);
+        image.setUploadUserId(BaseContextHandler.getUserId());
+        try {
+            File file = new File(image.getPrototypeVisitAddress());
+            // 大小
+            image.setSize((int) file.length());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return super.save(image);
     }
@@ -166,6 +188,16 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
         super.updateById(image);
     }
 
+    @Override
+    public ResponseEntity<org.springframework.core.io.Resource> findImage(String fileName) {
+        try {
+            return ResponseEntity.ok(resourceLoader.getResource("file:" + uploadPath + fileName));
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BusinessException(ErrCodeConstant.COMMON_PARAM_ERR);
+        }
+    }
+
     /**
      * @Description 设置喜欢与关注
      * @Author haifeng.lv
@@ -186,7 +218,7 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
                 } else {
                     record.setIsLike(false);
                 }
-                if (userIds.contains(record.getUploadUserId())) {
+                if (userIds.contains(record.getUserInfo().getId())) {
                     record.setIsAttention(true);
                 } else {
                     record.setIsAttention(false);

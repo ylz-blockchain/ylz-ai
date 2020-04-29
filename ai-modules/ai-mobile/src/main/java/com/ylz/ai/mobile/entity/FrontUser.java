@@ -13,7 +13,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 /**
  * @Description: 前端用户
  * @Author: haifeng.lv
- * @Date: 2020-04-21 14:46
+ * @Date: 2020-04-27 10:45
  */
 @Data
 @TableName("front_user")
@@ -46,14 +46,20 @@ public class FrontUser {
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "lastLoginTime")
 	private java.time.LocalDateTime lastLoginTime;
-	/**姓名(可以是微信号)*/
-    @ApiModelProperty(value = "姓名(可以是微信号)")
+	/**昵称*/
+    @ApiModelProperty(value = "昵称")
 	private String name;
+	/**password*/
+    @ApiModelProperty(value = "password")
+	private String password;
 	/**phoneNumber*/
     @ApiModelProperty(value = "phoneNumber")
 	private String phoneNumber;
-	/**sex*/
-    @ApiModelProperty(value = "sex")
+	/**qqNumber*/
+    @ApiModelProperty(value = "qqNumber")
+	private String qqNumber;
+	/**0 男 1 女*/
+    @ApiModelProperty(value = "0 男 1 女")
 	private Integer sex;
 	/**最后更新时间*/
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
@@ -62,6 +68,9 @@ public class FrontUser {
 	/**最后更新人*/
     @ApiModelProperty(value = "最后更新人")
 	private String updUser;
+	/**登录名*/
+    @ApiModelProperty(value = "登录名")
+	private String username;
 	/**wxNumber*/
     @ApiModelProperty(value = "wxNumber")
 	private String wxNumber;

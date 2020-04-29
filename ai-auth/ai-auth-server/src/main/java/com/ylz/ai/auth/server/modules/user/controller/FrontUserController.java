@@ -1,6 +1,7 @@
 package com.ylz.ai.auth.server.modules.user.controller;
 
 import com.ylz.ai.api.vo.user.FrontAuthenticationRequest;
+import com.ylz.ai.api.vo.user.FrontAuthenticationResponse;
 import com.ylz.ai.auth.server.modules.client.service.IAuthClientService;
 import com.ylz.ai.auth.server.modules.user.service.IFrontUserService;
 import com.ylz.ai.common.vo.Result;
@@ -37,8 +38,8 @@ public class FrontUserController {
      */
     @RequestMapping(value = "/getToken", method = RequestMethod.POST)
     @ApiOperation(value="登录获取 token", notes="登录获取 token")
-    public Result<String> getToken(@RequestBody FrontAuthenticationRequest request) throws Exception {
-        Result<String> result = new Result();
+    public Result<FrontAuthenticationResponse> getToken(@RequestBody FrontAuthenticationRequest request) throws Exception {
+        Result<FrontAuthenticationResponse> result = new Result();
         result.setResult(frontUserService.getToken(request));
         return result;
     }

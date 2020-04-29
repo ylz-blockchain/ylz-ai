@@ -10,12 +10,15 @@ import com.ylz.ai.mobile.vo.response.ImageInfo;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 import com.ylz.ai.auth.client.annotation.CheckClientToken;
 import com.ylz.ai.auth.user.annotation.CheckUserToken;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -44,7 +47,6 @@ public class ImageController {
     @ApiOperation(value = "照片-首页分页列表查询", notes = "照片-首页分页列表查询")
     @GetMapping(value = "/getIndexImagePageList")
     @IgnoreUserToken
-    @IgnoreClientToken
     public Result<IPage<ImageInfo>> getIndexImagePageList(@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
                                                           @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
                                                           HttpServletRequest request) throws Exception {
@@ -65,11 +67,11 @@ public class ImageController {
     @ApiOperation(value = "照片-发现分页列表查询", notes = "照片-发现分页列表查询")
     @GetMapping(value = "/getDiscoverImagePageList")
     @IgnoreUserToken
-    @IgnoreClientToken
     public Result<IPage<ImageInfo>> getDiscoverImagePageList(@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
-                                                     @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
+                                                             @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+                                                             HttpServletRequest request) throws Exception {
         Result<IPage<ImageInfo>> result = new Result<>();
-        IPage<ImageInfo> pageList = imageService.findDiscoverImagePageList(pageNo, pageSize);
+        IPage<ImageInfo> pageList = imageService.findDiscoverImagePageList(pageNo, pageSize, request);
         result.setSuccess(true);
         result.setResult(pageList);
         return result;
@@ -84,10 +86,8 @@ public class ImageController {
      */
     @ApiOperation(value = "照片-我的相册分页列表查询", notes = "照片-我的相册分页列表查询")
     @GetMapping(value = "/getMyImagePageList")
-    @IgnoreUserToken
-    @IgnoreClientToken
     public Result<IPage<ImageInfo>> getMyImagePageList(@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
-                                                     @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
+                                                       @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
         Result<IPage<ImageInfo>> result = new Result<>();
         IPage<ImageInfo> pageList = imageService.findMyImagePageList(pageNo, pageSize);
         result.setSuccess(true);
@@ -131,12 +131,27 @@ public class ImageController {
      */
     @ApiOperation(value = "照片-通过id查询", notes = "照片-通过id查询")
     @GetMapping(value = "/getImageById")
+    @IgnoreUserToken
     public Result<ImageInfo> getImageById(@RequestParam(name = "id", required = true) String id) {
         Result<ImageInfo> result = new Result<>();
         ImageInfo imageInfo = imageService.findImageById(id);
         result.setResult(imageInfo);
         result.setSuccess(true);
         return result;
+    }
+
+    /**
+     * @Description 访问照片
+     * @Author haifeng.lv
+     * @param: fileName
+     * @Date 2020/4/28 15:52
+     * @return: org.springframework.http.ResponseEntity<org.springframework.core.io.Resource>
+     */
+    @GetMapping("/{fileName:.+}")
+    @ApiIgnore
+    @IgnoreUserToken
+    public ResponseEntity<Resource> showImage(@PathVariable String fileName) {
+        return imageService.findImage(fileName);
     }
 
 }

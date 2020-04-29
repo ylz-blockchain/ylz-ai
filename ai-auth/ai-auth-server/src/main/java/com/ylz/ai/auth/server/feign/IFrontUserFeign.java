@@ -1,6 +1,7 @@
 package com.ylz.ai.auth.server.feign;
 
 import com.ylz.ai.api.vo.user.FrontAuthenticationRequest;
+import com.ylz.ai.api.vo.user.FrontAuthenticationResponse;
 import com.ylz.ai.auth.server.configuration.FeignConfiguration;
 import com.ylz.ai.common.vo.Result;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -24,6 +25,6 @@ public interface IFrontUserFeign {
      * @Date 2020/4/17 14:18
      * @return: com.ylz.ai.common.vo.Result<java.util.Map<java.lang.String,java.lang.String>>
      */
-    @PostMapping("/frontUser/validate")
-    Result<String> validate(@RequestBody FrontAuthenticationRequest request);
+    @PostMapping("/frontUser/login")
+    public Result<FrontAuthenticationResponse> login(@RequestBody FrontAuthenticationRequest request);
 }

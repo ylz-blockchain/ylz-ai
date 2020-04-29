@@ -82,4 +82,16 @@ public class ImageCommentServiceImpl extends ServiceImpl<ImageCommentMapper, Ima
 
         return response;
     }
+
+    /**
+     * @Description 查询照片评论
+     * @Author haifeng.lv
+     * @param: id 照片 id
+     * @Date 2020/4/28 17:10
+     * @return: java.util.List<com.ylz.ai.mobile.vo.response.ImageCommentInfo>
+     */
+    @Override
+    public List<ImageCommentInfo> findImageCommentsByImageId(String id) {
+        return baseMapper.selectImageCommentsByImageId(id);
+    }
 }
