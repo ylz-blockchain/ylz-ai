@@ -18,6 +18,7 @@ import io.swagger.annotations.ApiOperation;
 import com.ylz.ai.auth.client.annotation.CheckClientToken;
 import com.ylz.ai.auth.user.annotation.CheckUserToken;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -43,7 +44,7 @@ public class UserLikeController {
      */
     @ApiOperation(value = "用户点赞-添加", notes = "用户点赞-添加")
     @PostMapping(value = "/generateUserLike")
-    public Result<UserLike> generateUserLike(@RequestBody AddUserLike addUserLike) {
+    public Result<UserLike> generateUserLike(@Valid @RequestBody AddUserLike addUserLike) {
         Result<UserLike> result = new Result<>();
         userLikeService.createUserLike(addUserLike.getImageId());
         result.success("点赞成功！");

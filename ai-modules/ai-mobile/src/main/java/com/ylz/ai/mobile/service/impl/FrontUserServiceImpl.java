@@ -47,8 +47,8 @@ public class FrontUserServiceImpl extends ServiceImpl<FrontUserMapper, FrontUser
             BeanUtils.copyProperties(addFrontUser, frontUserEntity);
         }
         EntityUtils.setDefaultValue(frontUserEntity);
-        if(StringUtils.isNotBlank(frontUserEntity.getPassword())) {
-            frontUserEntity.setPassword(MD5Util.md5(frontUserEntity.getPassword()));
+        if(StringUtils.isNotBlank(addFrontUser.getPassword())) {
+            frontUserEntity.setPassword(MD5Util.md5(addFrontUser.getPassword()));
         }
 
         return super.updateById(frontUserEntity);
@@ -78,7 +78,7 @@ public class FrontUserServiceImpl extends ServiceImpl<FrontUserMapper, FrontUser
             // 设置默认属性
             frontUser.setName("");
             frontUser.setQqNumber("");
-            frontUser.setSex(UserSexConstant.Man);
+            frontUser.setSex(UserSexConstant.MAN);
             baseMapper.insert(frontUser);
         } else {
             baseMapper.updateById(frontUser);
@@ -89,7 +89,7 @@ public class FrontUserServiceImpl extends ServiceImpl<FrontUserMapper, FrontUser
     }
 
     @Override
-    public UserInfo findUserInfoBuUserId(String id) {
+    public UserInfo findUserInfoByUserId(String id) {
         FrontUser frontUser = baseMapper.selectById(id);
         UserInfo userInfo = new UserInfo();
         BeanUtils.copyProperties(frontUser, userInfo);

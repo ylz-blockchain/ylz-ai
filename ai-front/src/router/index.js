@@ -130,5 +130,23 @@ export const asyncRouterMap = [{
     component: _import('mobile/recognitionType/index'),
     name: '识别类型',
     authority: '/mobile/recognitionType'
+  },{
+    path: '/mobile/userImageRedirect',
+    icon: 'fa-user',
+    component: _import('mobile/userImageRedirect/index'),
+    name: '用户转发',
+    authority: '/mobile/userImageRedirect'
+  },{
+    path: '/mobile/imageComment',
+    icon: 'fa-user',
+    component: _import('mobile/imageComment/index'),
+    name: '用户评论',
+    authority: '/mobile/imageComment'
+  },{
+    path: '/mobile/image',
+    icon: 'fa-user',
+    component: _import('mobile/image/index'),
+    name: '照片管理',
+    authority: '/mobile/image'
   }]
 }];

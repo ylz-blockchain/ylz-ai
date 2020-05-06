@@ -1,12 +1,15 @@
 package com.ylz.ai.mobile.controller;
 
-import com.ylz.ai.auth.client.annotation.IgnoreClientToken;
 import com.ylz.ai.auth.user.annotation.IgnoreUserToken;
 import com.ylz.ai.common.vo.Result;
 import com.ylz.ai.mobile.entity.Image;
 import com.ylz.ai.mobile.service.IImageService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.ylz.ai.mobile.vo.request.AddImage;
+import com.ylz.ai.mobile.vo.request.ImageRequest;
 import com.ylz.ai.mobile.vo.response.ImageInfo;
+import com.ylz.ai.mobile.vo.response.ImageMinInfo;
+import com.ylz.ai.mobile.vo.response.ImageStatusInfo;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +39,30 @@ import javax.servlet.http.HttpServletRequest;
 public class ImageController {
     @Autowired
     private IImageService imageService;
+
+    /**
+     * 照片-分页列表查询(管理端使用)
+     *
+     * @param request
+     * @param pageNo
+     * @param pageSize
+     * @param sortProp
+     * @param sortType
+     * @return
+     */
+    @ApiOperation(value = "照片-分页列表查询(管理端使用)", notes = "照片-分页列表查询(管理端使用)")
+    @GetMapping(value = "/getImagePageList")
+    public Result<IPage<ImageMinInfo>> getImagePageList(ImageRequest request,
+                                                        @RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+                                                        @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+                                                        @RequestParam(name = "sortProp", required = false) String sortProp,
+                                                        @RequestParam(name = "sortType", required = false) String sortType) {
+        Result<IPage<ImageMinInfo>> result = new Result<>();
+        IPage<ImageMinInfo> pageList = imageService.findImagePageList(request, pageNo, pageSize, sortProp, sortType);
+        result.setSuccess(true);
+        result.setResult(pageList);
+        return result;
+    }
 
     /**
      * 首页分页列表查询
@@ -98,15 +125,32 @@ public class ImageController {
     /**
      * 添加
      *
-     * @param image
+     * @param addImage
      * @return
      */
     @ApiOperation(value = "照片-添加", notes = "照片-添加")
     @PostMapping(value = "/generateImage")
-    public Result<Image> generateImage(@RequestBody Image image) {
-        Result<Image> result = new Result<>();
-        imageService.createImage(image);
+    public Result<String> generateImage(@RequestBody AddImage addImage) {
+        Result<String> result = new Result<>();
+        String imageId = imageService.createImage(addImage);
         result.success("添加成功！");
+        result.setResult(imageId);
+        return result;
+    }
+
+    /**
+     * @Description 查询照片状态
+     * @Author haifeng.lv
+     * @param: id 照片 id
+     * @Date 2020/4/30 17:50
+     * @return: com.ylz.ai.common.vo.Result<java.lang.Integer>
+     */
+    @ApiOperation(value = "照片-查询照片状态", notes = "照片-查询照片状态")
+    @GetMapping(value = "/getImageStatus")
+    public Result<ImageStatusInfo> getImageStatus(String id) {
+        Result<ImageStatusInfo> result = new Result<>();
+        ImageStatusInfo response = imageService.findImageStatus(id);
+        result.setResult(response);
         return result;
     }
 
@@ -124,6 +168,18 @@ public class ImageController {
     }
 
     /**
+     * 批量删除
+     * @param ids
+     * @return
+     */
+    @ApiOperation(value="照片-批量删除", notes="照片-批量删除")
+    @DeleteMapping(value = "/expurgateImageBatch")
+    public Result<?> expurgateImageBatch(@RequestParam(name="ids",required=true) String ids) {
+        imageService.dropImageBatch(ids);
+        return Result.ok("删除成功!");
+    }
+
+    /**
      * 通过id查询
      *
      * @param id
@@ -132,9 +188,9 @@ public class ImageController {
     @ApiOperation(value = "照片-通过id查询", notes = "照片-通过id查询")
     @GetMapping(value = "/getImageById")
     @IgnoreUserToken
-    public Result<ImageInfo> getImageById(@RequestParam(name = "id", required = true) String id) {
+    public Result<ImageInfo> getImageById(@RequestParam(name = "id", required = true) String id, HttpServletRequest request) throws Exception {
         Result<ImageInfo> result = new Result<>();
-        ImageInfo imageInfo = imageService.findImageById(id);
+        ImageInfo imageInfo = imageService.findImageById(id, request);
         result.setResult(imageInfo);
         result.setSuccess(true);
         return result;

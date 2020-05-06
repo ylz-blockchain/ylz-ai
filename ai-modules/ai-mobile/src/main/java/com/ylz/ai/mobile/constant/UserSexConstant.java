@@ -6,6 +6,6 @@ package com.ylz.ai.mobile.constant;
  * @Date 2020/4/27 14:30
  */
 public class UserSexConstant {
-    public static final int Man = 0;
-    public static final int Woman = 1;
+    public static final int MAN = 0;
+    public static final int WOMAN = 1;
 }

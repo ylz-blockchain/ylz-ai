@@ -2,7 +2,26 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ylz.ai.mobile.mapper.UserLikeMapper">
 
-    <select id="selectLikeImagesByCurrent" resultType="com.ylz.ai.mobile.vo.response.ImageInfo">
+    <resultMap id="getUserInfosByUserId" type="com.ylz.ai.mobile.vo.response.ImageInfo">
+        <association property="userInfo" select="selectUserInfo" column="{id=userId}"></association>
+    </resultMap>
+
+    <select id="selectUserInfo" resultType="com.ylz.ai.mobile.vo.response.UserInfo">
+        select
+            user.id as id,
+            user.head_image as headImage,
+            user.ip as ip,
+            user.last_login_time as lastLoginTime,
+            user.name as name,
+            user.phone_number as phoneNumber,
+            user.sex as sex,
+            user.wx_number as wxNumber,
+            user.description as description
+        from front_user user
+        where id = #{id}
+    </select>
+
+    <select id="selectLikeImagesByCurrent" resultMap="getUserInfosByUserId">
         select
             im.id as id,
             im.name as name,
@@ -12,6 +31,7 @@
             im.like_number as likeNumber,
             im.redirect_number as redirectNumber,
             im.browse_number as browseNumber,
+            im.upload_user_id as userId,
             im.prototype_visit_address as prototypeVisitAddress,
             im.recognition_visit_address as recognitionVisitAddress
         from user_like ul

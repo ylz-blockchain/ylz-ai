@@ -31,4 +31,22 @@
         from image_comment
         where comment_image_id = #{id}
     </select>
+
+    <!-- 查询照片分页列表 -->
+    <select id="selectImageCommentPageList"
+            parameterType="com.ylz.ai.mobile.vo.request.UserCommentRequest"
+            resultType="com.ylz.ai.mobile.vo.response.ImageCommentMinInfo">
+        select
+            ic.id as id,
+            ic.comment_description as commentDescription,
+            fu.name as userName,
+            i.name as imageName
+        from image_comment ic
+            LEFT JOIN image i ON i.id = ic.comment_image_id
+            LEFT JOIN front_user fu ON fu.id = ic.comment_user_id
+        where 1=1
+        <if test="userComment.commentDescription!= null and userComment.commentDescription!= ''">
+            and ic.comment_description like "%"#{userComment.commentDescription}"%"
+        </if>
+    </select>
 </mapper>

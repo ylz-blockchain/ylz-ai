@@ -22,7 +22,11 @@ public class ErrCodeConstant extends ErrCodeBaseConstant {
      */
     public static final ErrorCode NO_USER_ERROR = new ErrorCode("30003", "没有查询到该用户");
     /**
+     * 不可关注自己
+     */
+    public static final ErrorCode NO_ATTENTION_SELF_ERROR = new ErrorCode("30004", "不可关注自己");
+    /**
      * 不可重复关注
      */
-    public static final ErrorCode ATTENTION_REPEAT_ERROR = new ErrorCode("30004", "不可重复关注");
+    public static final ErrorCode ATTENTION_REPEAT_ERROR = new ErrorCode("30005", "不可重复关注");
 }

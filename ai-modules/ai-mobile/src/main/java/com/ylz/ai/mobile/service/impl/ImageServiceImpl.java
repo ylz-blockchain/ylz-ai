@@ -3,19 +3,20 @@ package com.ylz.ai.mobile.service.impl;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.ylz.ai.auth.user.service.AuthUserService;
 import com.ylz.ai.common.context.BaseContextHandler;
+import com.ylz.ai.common.util.SortUtils;
 import com.ylz.ai.mobile.constant.ErrCodeConstant;
+import com.ylz.ai.mobile.constant.ImageProcessStatusConstant;
 import com.ylz.ai.mobile.entity.Image;
-import com.ylz.ai.mobile.entity.ImageComment;
 import com.ylz.ai.mobile.entity.UserLike;
-import com.ylz.ai.mobile.mapper.ImageCommentMapper;
 import com.ylz.ai.mobile.mapper.ImageMapper;
 import com.ylz.ai.mobile.service.*;
 import com.ylz.ai.common.error.ErrCodeBaseConstant;
 import com.ylz.ai.common.exception.BusinessException;
 import com.ylz.ai.common.util.EntityUtils;
-import com.ylz.ai.mobile.vo.response.ImageCommentInfo;
-import com.ylz.ai.mobile.vo.response.ImageInfo;
-import com.ylz.ai.mobile.vo.response.UserInfo;
+import com.ylz.ai.mobile.vo.request.AddImage;
+import com.ylz.ai.mobile.vo.request.ImageRequest;
+import com.ylz.ai.mobile.vo.response.*;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
@@ -54,11 +55,27 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
     private ResourceLoader resourceLoader;
     @Autowired
     private IFrontUserService frontUserService;
+    @Autowired
+    private List<IImageLinkedService> imageLinkedServices;
+    @Resource
+    private ImageMapper imageMapper;
+
     /**
      * 上传路径
      */
     @Value("${upload.path}")
     private String uploadPath;
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public IPage<ImageMinInfo> findImagePageList(ImageRequest request, Integer pageNo, Integer pageSize, String sortProp, String sortType) {
+        Page<ImageMinInfo> page = new Page(pageNo, pageSize);
+        List<OrderItem> orderItems = SortUtils.resolverSort(sortProp, sortType);
+        orderItems.add(OrderItem.desc("im.crt_time"));
+        page.setOrders(orderItems);
+        IPage<ImageMinInfo> pageList = imageMapper.selectImagePageList(page, request);
+        return pageList;
+    }
 
     /**
      * @Description 查询首页数据
@@ -101,21 +118,18 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
         return response;
     }
 
+    /**
+     * @Description 查询我的照片列表
+     * @Author haifeng.lv
+     * @param: pageNo
+     * @param: pageSize
+     * @Date 2020/4/30 16:41
+     * @return: com.baomidou.mybatisplus.core.metadata.IPage<com.ylz.ai.mobile.vo.response.ImageInfo>
+     */
     @Override
     public IPage<ImageInfo> findMyImagePageList(Integer pageNo, Integer pageSize) {
         Page<Image> page = new Page(pageNo, pageSize);
-        QueryWrapper<Image> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("upload_user_id", BaseContextHandler.getUserId());
-        page.setOrders(Arrays.asList(OrderItem.desc("crt_time")));
-        IPage<Image> imageIPage = baseMapper.selectPage(page, queryWrapper);
-        IPage<ImageInfo> response = new Page<>();
-        BeanUtils.copyProperties(imageIPage, response);
-        response.setRecords(imageIPage.getRecords().stream().map(record -> {
-            ImageInfo imageInfo = new ImageInfo();
-            BeanUtils.copyProperties(record, imageInfo);
-            return imageInfo;
-        }).collect(Collectors.toList()));
-
+        IPage<ImageInfo> response = baseMapper.selectMyImagePageList(page, BaseContextHandler.getUserId());
         return response;
     }
 
@@ -126,8 +140,21 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
         return super.updateById(image);
     }
 
+    /**
+     * @Description 查询照片状态
+     * @Author haifeng.lv
+     * @param: id
+     * @Date 2020/4/30 17:52
+     * @return: java.lang.Integer
+     */
     @Override
-    public ImageInfo findImageById(String id) {
+    public ImageStatusInfo findImageStatus(String id) {
+        ImageStatusInfo imageStatusInfo = baseMapper.selectImageStatus(id);
+        return imageStatusInfo;
+    }
+
+    @Override
+    public ImageInfo findImageById(String id, HttpServletRequest request) throws Exception {
         Image image = super.getById(id);
         if (null == image) {
             throw new BusinessException(ErrCodeBaseConstant.COMMON_PARAM_ERR);
@@ -138,7 +165,12 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
 
             ImageInfo imageInfo = new ImageInfo();
             BeanUtils.copyProperties(image, imageInfo);
-            imageInfo.setUserInfo(frontUserService.findUserInfoBuUserId(image.getUploadUserId()));
+            imageInfo.setUserInfo(frontUserService.findUserInfoByUserId(image.getUploadUserId()));
+            // 获取用户 token
+            if(authUserService.setCurrentUserInfo(request)) {
+                // 设置喜欢与关注
+                setLikeAndAttention(Arrays.asList(imageInfo));
+            }
 
             // 查询评论信息
             List<ImageCommentInfo> imageCommentInfos = imageCommentService.findImageCommentsByImageId(image.getId());
@@ -148,9 +180,10 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
     }
 
     @Override
-    public boolean createImage(Image image) {
+    public String createImage(AddImage addImage) {
+        Image image = new Image();
         EntityUtils.setDefaultValue(image);
-        image.setUploadUserId(BaseContextHandler.getUserId());
+        BeanUtils.copyProperties(addImage, image);
         // 默认 0点赞
         image.setLikeNumber(0);
         // 默认 0转发
@@ -158,20 +191,35 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
         // 默认 0浏览
         image.setBrowseNumber(0);
         image.setUploadUserId(BaseContextHandler.getUserId());
-        try {
-            File file = new File(image.getPrototypeVisitAddress());
-            // 大小
-            image.setSize((int) file.length());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        // 默认未处理状态
+        image.setProcessStatus(ImageProcessStatusConstant.NO_PROCESS);
+        super.save(image);
 
-        return super.save(image);
+        return image.getId();
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean dropImageById(String id) {
+        // 级联删除关联的照片信息
+        imageLinkedServices.forEach(imageLinkedService -> {
+            imageLinkedService.deleteLink(id);
+        });
+
         return super.removeById(id);
+    }
+
+    @Override
+    public boolean dropImageBatch(String ids) {
+        if(StringUtils.isBlank(ids)) {
+            throw new BusinessException(ErrCodeBaseConstant.COMMON_PARAM_ERR);
+        } else {
+            // 级联删除关联的照片信息
+            imageLinkedServices.forEach(imageLinkedService -> {
+                imageLinkedService.deleteBatchLink(Arrays.asList(ids.split(",")));
+            });
+            return super.removeByIds(Arrays.asList(ids.split(",")));
+        }
     }
 
     @Override
@@ -182,6 +230,7 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void alterImageRedirectById(String imageId) {
         Image image = baseMapper.selectById(imageId);
         image.setRedirectNumber(image.getRedirectNumber() + 1);

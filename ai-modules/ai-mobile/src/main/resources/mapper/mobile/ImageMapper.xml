@@ -7,8 +7,9 @@
         im.id as id,
         im.name as name,
         im.title as title,
-        im.size as size,
+        CONCAT(im.`size`) as `size`,
         im.description as description,
+        im.process_status as processStatus,
         im.like_number as likeNumber,
         im.redirect_number as redirectNumber,
         im.browse_number as browseNumber,
@@ -39,19 +40,66 @@
     <!-- 查询首页数据 -->
     <select id="selectIndexImagePageList" resultMap="getUserInfosByUploadId">
         select
-            <include refid="base_column"></include>,
-            (im.like_number+im.redirect_number+im.browse_number) as integration
+        <include refid="base_column"></include>,
+        (im.like_number+im.redirect_number+im.browse_number) as integration
         from image im
         where im.is_open = 1
         order by integration desc
     </select>
-    
+
     <!-- 查询发现数据 -->
     <select id="selectDiscoverImagePageList" resultMap="getUserInfosByUploadId">
         select
         <include refid="base_column"></include>
         from image im
         where im.is_open = 1
-        order by crt_time desc
+        order by im.crt_time desc
+    </select>
+
+    <select id="selectImagePageList"
+            parameterType="com.ylz.ai.mobile.vo.request.ImageRequest"
+            resultType="com.ylz.ai.mobile.vo.response.ImageMinInfo">
+        select
+        <include refid="base_column"></include>,
+        im.is_open as isOpen,
+        fu.name as uploadUserName,
+        rt.name as recognitionTypeName
+        from image im
+        left join front_user fu on fu.id = im.upload_user_id
+        left join recognition_type rt on rt.id = im.recognition_type_id
+        where 1=1
+        <if test="image.recognitionTypeId!= null and image.recognitionTypeId!= ''">
+            and im.recognition_type_id = #{image.recognitionTypeId}
+        </if>
+        <if test="image.isOpen!= null">
+            and im.is_open = #{image.isOpen}
+        </if>
+        <if test="image.name!= null and image.name!= ''">
+            and im.name like concat('%',#{image.name},'%')
+        </if>
+        <if test="image.title!= null and image.title!= ''">
+            and im.title like concat('%',#{image.title},'%')
+        </if>
+        <if test="image.description!= null and image.description!= ''">
+            and im.description like concat('%',#{image.description},'%')
+        </if>
+    </select>
+
+    <!-- 查询我的照片列表 -->
+    <select id="selectMyImagePageList" resultType="com.ylz.ai.mobile.vo.response.ImageInfo">
+        select
+        <include refid="base_column"></include>
+        from image im
+        where im.upload_user_id = #{userId}
+        order by im.crt_time desc
+    </select>
+
+    <!-- 查询照片状态 -->
+    <select id="selectImageStatus" resultType="com.ylz.ai.mobile.vo.response.ImageStatusInfo">
+        select
+            process_status as status,
+            recognition_visit_address as recognitionVisitAddress
+        from image
+        where id = #{id}
     </select>
 </mapper>

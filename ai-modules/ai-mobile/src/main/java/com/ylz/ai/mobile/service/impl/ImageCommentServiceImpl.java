@@ -6,10 +6,12 @@ import com.ylz.ai.mobile.mapper.ImageCommentMapper;
 import com.ylz.ai.mobile.service.IImageCommentService;
 import com.ylz.ai.common.error.ErrCodeBaseConstant;
 import com.ylz.ai.common.exception.BusinessException;
-import com.ylz.ai.common.query.QueryGenerator;
 import com.ylz.ai.common.util.EntityUtils;
+import com.ylz.ai.mobile.service.IImageLinkedService;
 import com.ylz.ai.mobile.vo.request.AddImageComment;
+import com.ylz.ai.mobile.vo.request.UserCommentRequest;
 import com.ylz.ai.mobile.vo.response.ImageCommentInfo;
+import com.ylz.ai.mobile.vo.response.ImageCommentMinInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +32,14 @@ import java.util.stream.Collectors;
  * @Date: 2020-04-20 14:27
  */
 @Service
-public class ImageCommentServiceImpl extends ServiceImpl<ImageCommentMapper, ImageComment> implements IImageCommentService {
+public class ImageCommentServiceImpl extends ServiceImpl<ImageCommentMapper, ImageComment> implements IImageCommentService, IImageLinkedService {
+    @Override
+    public IPage<ImageCommentMinInfo> findImageCommentPageList(UserCommentRequest request, Integer pageNo, Integer pageSize) {
+        Page<ImageCommentMinInfo> page = new Page<>(pageNo, pageSize);
+        IPage<ImageCommentMinInfo> pageList = baseMapper.selectImageCommentPageList(page, request);
+        return pageList;
+    }
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean createImageComment(AddImageComment addImageComment) {
@@ -93,5 +102,26 @@ public class ImageCommentServiceImpl extends ServiceImpl<ImageCommentMapper, Ima
     @Override
     public List<ImageCommentInfo> findImageCommentsByImageId(String id) {
         return baseMapper.selectImageCommentsByImageId(id);
+    }
+
+    /**
+     * @Description 级联删除
+     * @Author haifeng.lv
+     * @param: id 照片 id
+     * @Date 2020/4/29 16:15
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteLink(String id) {
+        QueryWrapper<ImageComment> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("comment_image_id", id);
+        super.remove(queryWrapper);
+    }
+
+    @Override
+    public void deleteBatchLink(List<String> ids) {
+        QueryWrapper<ImageComment> queryWrapper = new QueryWrapper<>();
+        queryWrapper.in("comment_image_id", ids);
+        super.remove(queryWrapper);
     }
 }

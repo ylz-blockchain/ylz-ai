@@ -2,4 +2,25 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ylz.ai.mobile.mapper.UserImageRedirectMapper">
 
+    <select id="selectUserImageRedirectPageList"
+            parameterType="com.ylz.ai.mobile.vo.request.UserImageRedirectRequest"
+            resultType="com.ylz.ai.mobile.vo.response.UserImageRedirectInfo">
+        SELECT
+            uir.id as id,
+            uir.redirect_place as redirectPlace,
+            uir.description as description,
+            fu.name as userName,
+            i.name as imageName
+        FROM
+            user_image_redirect uir
+            LEFT JOIN image i ON i.id = uir.image_id
+            LEFT JOIN front_user fu ON fu.id = uir.user_id
+        where 1=1
+        <if test="userImageRedirect.redirectPlace!= null and userImageRedirect.redirectPlace!= ''">
+            and uir.redirect_place like "%"#{userImageRedirect.redirectPlace}"%"
+        </if>
+        <if test="userImageRedirect.description!= null and userImageRedirect.description!= ''">
+            and uir.description like "%"#{userImageRedirect.description}"%"
+        </if>
+    </select>
 </mapper>

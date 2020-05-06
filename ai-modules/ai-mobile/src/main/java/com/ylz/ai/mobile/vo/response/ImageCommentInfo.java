@@ -12,16 +12,12 @@ import lombok.Data;
 @Data
 @ApiModel(value = "imageCommentInfo", description = "imageCommentInfo")
 public class ImageCommentInfo {
-    /**commentDescription*/
     @ApiModelProperty(value = "评论内容")
     private String commentDescription;
-    /**commentImageId*/
     @ApiModelProperty(value = "评论图片")
     private String commentImageId;
-    /**commentUserId*/
     @ApiModelProperty(value = "评论人")
     private String commentUserId;
-    /**id*/
     private String id;
     @ApiModelProperty(value = "评论用户基本信息")
     private UserInfo userInfo;

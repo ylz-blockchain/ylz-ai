@@ -101,11 +101,15 @@ public class AttentionUserServiceImpl extends ServiceImpl<AttentionUserMapper, A
      */
     @Override
     public boolean attentionUsers(String id) {
+        String userId = BaseContextHandler.getUserId();
+        if (userId.equals(id)) {
+            throw new BusinessException(ErrCodeConstant.NO_ATTENTION_SELF_ERROR);
+        }
+
         FrontUser frontUser = frontUserService.getById(id);
         if (null == frontUser) {
             throw new BusinessException(ErrCodeConstant.NO_USER_ERROR);
         }
-        String userId = BaseContextHandler.getUserId();
         QueryWrapper<AttentionUser> queryWrapper = new QueryWrapper();
         queryWrapper.eq("attention_user_id", userId);
         queryWrapper.eq("be_attention_user_id", id);

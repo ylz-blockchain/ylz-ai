@@ -18,5 +18,5 @@ import javax.servlet.http.HttpServletRequest;
 public interface IFrontUserService extends IService<FrontUser> {
     boolean alterFrontUserById(AddFrontUser addFrontUser);
     FrontAuthenticationResponse login(FrontAuthenticationRequest request, HttpServletRequest httpServletRequest);
-    UserInfo findUserInfoBuUserId(String id);
+    UserInfo findUserInfoByUserId(String id);
 }

@@ -6,6 +6,10 @@ export function getRecognitionTypePageList(data) {
   return get(prefix + 'recognitionType/getRecognitionTypePageList', data)
 }
 
+export function getRecognitionTypes(data) {
+  return get(prefix + 'recognitionType/getRecognitionTypes', data)
+}
+
 export function generateRecognitionType(data) {
   return post(prefix + 'recognitionType/generateRecognitionType', data)
 }

@@ -14,69 +14,36 @@ import java.util.List;
 @Data
 @ApiModel(value = "imageInfo", description = "imageInfo")
 public class ImageInfo {
-    /**
-     * 描述
-     */
+    @ApiModelProperty(value = "描述")
     private String description;
-    /**
-     * id
-     */
     private String id;
-    /**
-     * likeNumber
-     */
     @ApiModelProperty(value = "点赞数")
-    private Integer likeNumber;
-    /**
-     * 转发次数
-     */
+    private Integer likeNumber = 0;
+    @ApiModelProperty(value = "0 不公开 1 公开")
+    private Integer isOpen;
     @ApiModelProperty(value = "转发次数")
-    private Integer redirectNumber;
-    /**
-     * 浏览次数
-     */
+    private Integer redirectNumber = 0;
     @ApiModelProperty(value = "浏览次数")
-    private Integer browseNumber;
-    /**
-     * name
-     */
+    private Integer browseNumber = 0;
     private String name;
-    /**
-     * title
-     */
     private String title;
-    /**
-     * prototypeVisitAddress
-     */
     @ApiModelProperty(value = "源访问地址")
     private String prototypeVisitAddress;
-    /**
-     * recognitionVisitAddress
-     */
     @ApiModelProperty(value = "识别访问地址")
     private String recognitionVisitAddress;
-    /**
-     * size
-     */
     @ApiModelProperty(value = "大小")
-    private Integer size;
+    private Integer size = 0;
     private UserInfo userInfo;
 
-    /**
-     * 是否被当前用户点赞
-     */
     @ApiModelProperty(value = "是否被当前用户点赞 false 未点赞, ture 已点赞")
-    private Boolean isLike;
+    private Boolean isLike = false;
 
-    /**
-     * 上传用户是否被当前用户所关注
-     */
+    @ApiModelProperty(value = "处理状态 0 未处理 1 已处理")
+    private Integer processStatus;
+
     @ApiModelProperty(value = "上传用户是否被当前用户所关注 false 未关注, ture 已关注")
-    private Boolean isAttention;
+    private Boolean isAttention = false;
 
-    /**
-     * 照片评论
-     */
     @ApiModelProperty(value = "照片评论")
     private List<ImageCommentInfo> comments;
 }

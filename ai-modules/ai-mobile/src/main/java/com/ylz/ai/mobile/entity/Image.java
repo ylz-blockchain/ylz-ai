@@ -13,7 +13,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 /**
  * @Description: 照片
  * @Author: haifeng.lv
- * @Date: 2020-04-24 14:33
+ * @Date: 2020-04-30 17:19
  */
 @Data
 @TableName("image")
@@ -45,6 +45,9 @@ public class Image {
 	/**name*/
     @ApiModelProperty(value = "name")
 	private String name;
+	/**处理状态 0 未处理 1 已处理*/
+    @ApiModelProperty(value = "处理状态 0 未处理 1 已处理")
+	private Integer processStatus;
 	/**prototypeVisitAddress*/
     @ApiModelProperty(value = "prototypeVisitAddress")
 	private String prototypeVisitAddress;
