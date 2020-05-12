@@ -3,12 +3,16 @@ package com.ylz.ai.mobile.service.impl;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.ylz.ai.auth.user.service.AuthUserService;
 import com.ylz.ai.common.context.BaseContextHandler;
+import com.ylz.ai.common.util.JsonUtils;
+import com.ylz.ai.common.util.SizeConverterUtils;
 import com.ylz.ai.common.util.SortUtils;
 import com.ylz.ai.mobile.constant.ErrCodeConstant;
 import com.ylz.ai.mobile.constant.ImageProcessStatusConstant;
 import com.ylz.ai.mobile.entity.Image;
 import com.ylz.ai.mobile.entity.UserLike;
 import com.ylz.ai.mobile.mapper.ImageMapper;
+import com.ylz.ai.mobile.rabbitmq.sender.QueueSender;
+import com.ylz.ai.mobile.rabbitmq.vo.ImageAiRequest;
 import com.ylz.ai.mobile.service.*;
 import com.ylz.ai.common.error.ErrCodeBaseConstant;
 import com.ylz.ai.common.exception.BusinessException;
@@ -18,6 +22,7 @@ import com.ylz.ai.mobile.vo.request.ImageRequest;
 import com.ylz.ai.mobile.vo.response.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.ResponseEntity;
@@ -32,7 +37,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.io.File;
+import java.net.URL;
+import java.net.URLConnection;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -59,6 +66,9 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
     private List<IImageLinkedService> imageLinkedServices;
     @Resource
     private ImageMapper imageMapper;
+    @Autowired
+    @Qualifier("aiQueueSender")
+    private QueueSender queueSender;
 
     /**
      * 上传路径
@@ -74,6 +84,9 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
         orderItems.add(OrderItem.desc("im.crt_time"));
         page.setOrders(orderItems);
         IPage<ImageMinInfo> pageList = imageMapper.selectImagePageList(page, request);
+        pageList.getRecords().forEach(record -> {
+            record.setSize(SizeConverterUtils.BTrim.convert(Integer.parseInt(record.getSize())));
+        });
         return pageList;
     }
 
@@ -91,7 +104,7 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
         Page<ImageInfo> page = new Page(pageNo, pageSize);
         IPage<ImageInfo> response = baseMapper.selectIndexImagePageList(page);
         // 获取用户 token
-        if(authUserService.setCurrentUserInfo(request)) {
+        if (authUserService.setCurrentUserInfo(request)) {
             // 设置喜欢与关注
             setLikeAndAttention(response.getRecords());
         }
@@ -111,7 +124,7 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
         Page<ImageInfo> page = new Page(pageNo, pageSize);
         IPage<ImageInfo> response = baseMapper.selectDiscoverImagePageList(page);
         // 获取用户 token
-        if(authUserService.setCurrentUserInfo(request)) {
+        if (authUserService.setCurrentUserInfo(request)) {
             // 设置喜欢与关注
             setLikeAndAttention(response.getRecords());
         }
@@ -141,6 +154,33 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
     }
 
     /**
+     * @Description 修改照片识别地址 id
+     * @Author haifeng.lv
+     * @param: id
+     * @param: recognitionVisitAddress
+     * @param: status 0 失败 1 成功
+     * @Date 2020/5/11 15:05
+     */
+    @Override
+    public void alterImageRVAById(String id, String recognitionVisitAddress, Integer status) {
+        Image image = baseMapper.selectById(id);
+        if (null == image) {
+            throw new BusinessException(ErrCodeConstant.COMMON_PARAM_ERR);
+        }
+
+        if(ImageProcessStatusConstant.PROCESSED.equals(status)) {
+            // 成功
+            image.setRecognitionVisitAddress(recognitionVisitAddress);
+            image.setProcessStatus(ImageProcessStatusConstant.PROCESSED);
+        } else {
+            // 失败
+            image.setProcessStatus(ImageProcessStatusConstant.FAIL);
+        }
+        image.setUpdTime(LocalDateTime.now());
+        super.updateById(image);
+    }
+
+    /**
      * @Description 查询照片状态
      * @Author haifeng.lv
      * @param: id
@@ -167,7 +207,7 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
             BeanUtils.copyProperties(image, imageInfo);
             imageInfo.setUserInfo(frontUserService.findUserInfoByUserId(image.getUploadUserId()));
             // 获取用户 token
-            if(authUserService.setCurrentUserInfo(request)) {
+            if (authUserService.setCurrentUserInfo(request)) {
                 // 设置喜欢与关注
                 setLikeAndAttention(Arrays.asList(imageInfo));
             }
@@ -179,11 +219,26 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
         }
     }
 
+    /**
+     * @Description 创建照片
+     * @Author haifeng.lv
+     * @param: addImage
+     * @Date 2020/5/6 11:30
+     * @return: java.lang.String
+     */
     @Override
     public String createImage(AddImage addImage) {
         Image image = new Image();
         EntityUtils.setDefaultValue(image);
         BeanUtils.copyProperties(addImage, image);
+        try {
+            URL url = new URL(addImage.getPrototypeVisitAddress());
+            URLConnection conn = url.openConnection();
+            image.setSize(conn.getContentLength());
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BusinessException(ErrCodeConstant.NO_GET_FILE_SIZE_ERROR);
+        }
         // 默认 0点赞
         image.setLikeNumber(0);
         // 默认 0转发
@@ -194,6 +249,13 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
         // 默认未处理状态
         image.setProcessStatus(ImageProcessStatusConstant.NO_PROCESS);
         super.save(image);
+
+        ImageAiRequest imageAiRequest = new ImageAiRequest();
+        imageAiRequest.setId(image.getId());
+        // 原图访问地址
+        imageAiRequest.setPrototypeVisitAddress(addImage.getPrototypeVisitAddress());
+        // 通知消息端识别图像
+        queueSender.sendMessage(JsonUtils.toJSONString(imageAiRequest));
 
         return image.getId();
     }
@@ -211,7 +273,7 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
 
     @Override
     public boolean dropImageBatch(String ids) {
-        if(StringUtils.isBlank(ids)) {
+        if (StringUtils.isBlank(ids)) {
             throw new BusinessException(ErrCodeBaseConstant.COMMON_PARAM_ERR);
         } else {
             // 级联删除关联的照片信息
@@ -245,6 +307,13 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
             e.printStackTrace();
             throw new BusinessException(ErrCodeConstant.COMMON_PARAM_ERR);
         }
+    }
+
+    @Override
+    public Integer findImageUploadCountByUserId(String userId) {
+        QueryWrapper<Image> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("upload_user_id", userId);
+        return baseMapper.selectCount(queryWrapper);
     }
 
     /**

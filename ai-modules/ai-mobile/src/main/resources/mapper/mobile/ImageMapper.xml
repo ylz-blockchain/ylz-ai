@@ -9,6 +9,7 @@
         im.title as title,
         CONCAT(im.`size`) as `size`,
         im.description as description,
+        im.is_open as isOpen,
         im.process_status as processStatus,
         im.like_number as likeNumber,
         im.redirect_number as redirectNumber,
@@ -44,6 +45,7 @@
         (im.like_number+im.redirect_number+im.browse_number) as integration
         from image im
         where im.is_open = 1
+        and im.process_status = 1
         order by integration desc
     </select>
 
@@ -53,6 +55,7 @@
         <include refid="base_column"></include>
         from image im
         where im.is_open = 1
+        and im.process_status = 1
         order by im.crt_time desc
     </select>
 
@@ -73,6 +76,9 @@
         </if>
         <if test="image.isOpen!= null">
             and im.is_open = #{image.isOpen}
+        </if>
+        <if test="image.processStatus!= null">
+            and im.process_status = #{image.processStatus}
         </if>
         <if test="image.name!= null and image.name!= ''">
             and im.name like concat('%',#{image.name},'%')

@@ -2,7 +2,6 @@ package com.ylz.ai.mobile.controller;
 
 import com.ylz.ai.auth.user.annotation.IgnoreUserToken;
 import com.ylz.ai.common.vo.Result;
-import com.ylz.ai.mobile.entity.Image;
 import com.ylz.ai.mobile.service.IImageService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.ylz.ai.mobile.vo.request.AddImage;

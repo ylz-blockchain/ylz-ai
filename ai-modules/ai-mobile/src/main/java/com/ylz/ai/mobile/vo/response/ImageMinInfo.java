@@ -33,11 +33,11 @@ public class ImageMinInfo {
     @ApiModelProperty(value = "转发次数")
     private Integer redirectNumber;
     @ApiModelProperty(value = "size")
-    private Integer size;
+    private String size;
     @ApiModelProperty(value = "title")
     private String title;
     @ApiModelProperty(value = "上传用户昵称")
     private String uploadUserName;
-    @ApiModelProperty(value = "处理状态 0 未处理 1 已处理")
+    @ApiModelProperty(value = "处理状态 0 未处理 1 已处理 2 失败")
     private Integer processStatus;
 }

@@ -29,4 +29,8 @@ public class ErrCodeConstant extends ErrCodeBaseConstant {
      * 不可重复关注
      */
     public static final ErrorCode ATTENTION_REPEAT_ERROR = new ErrorCode("30005", "不可重复关注");
+    /**
+     * 无法获取文件大小
+     */
+    public static final ErrorCode NO_GET_FILE_SIZE_ERROR = new ErrorCode("30006", "无法获取文件大小");
 }

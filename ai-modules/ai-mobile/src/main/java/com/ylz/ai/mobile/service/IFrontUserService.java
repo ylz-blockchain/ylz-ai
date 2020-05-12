@@ -6,6 +6,7 @@ import com.ylz.ai.mobile.entity.FrontUser;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.ylz.ai.mobile.vo.request.AddFrontUser;
+import com.ylz.ai.mobile.vo.response.FrontStatisticsInfo;
 import com.ylz.ai.mobile.vo.response.UserInfo;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,4 +20,5 @@ public interface IFrontUserService extends IService<FrontUser> {
     boolean alterFrontUserById(AddFrontUser addFrontUser);
     FrontAuthenticationResponse login(FrontAuthenticationRequest request, HttpServletRequest httpServletRequest);
     UserInfo findUserInfoByUserId(String id);
+    FrontStatisticsInfo findFrontStatistics();
 }

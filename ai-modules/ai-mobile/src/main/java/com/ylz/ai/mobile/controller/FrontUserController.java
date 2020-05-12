@@ -10,6 +10,8 @@ import com.ylz.ai.mobile.entity.FrontUser;
 import com.ylz.ai.mobile.service.IFrontUserService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.ylz.ai.mobile.vo.request.AddFrontUser;
+import com.ylz.ai.mobile.vo.response.FrontStatisticsInfo;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,7 @@ import com.ylz.ai.auth.user.annotation.CheckUserToken;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -62,6 +65,16 @@ public class FrontUserController {
         Result<FrontUser> result = new Result<>();
         frontUserService.alterFrontUserById(addFrontUser);
         result.success("编辑成功！");
+        return result;
+    }
+
+    @ApiOperation(value = "前端用户-统计", notes = "前端用户-统计")
+    @GetMapping(value = "/getFrontStatistics")
+    public Result<FrontStatisticsInfo> getFrontStatistics() {
+        Result<FrontStatisticsInfo> result = new Result<>();
+        FrontStatisticsInfo frontStatisticsInfo = frontUserService.findFrontStatistics();
+        result.setResult(frontStatisticsInfo);
+        result.setSuccess(true);
         return result;
     }
 

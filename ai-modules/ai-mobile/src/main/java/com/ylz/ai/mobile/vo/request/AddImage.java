@@ -21,5 +21,5 @@ public class AddImage {
     @ApiModelProperty(value = "是否公开 0 不公开 1 公开")
     private Integer isOpen;
     @ApiModelProperty(value = "识别类型id")
-    private Integer recognitionTypeId;
+    private String recognitionTypeId;
 }

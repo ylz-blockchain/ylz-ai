@@ -146,4 +146,23 @@ public class AttentionUserServiceImpl extends ServiceImpl<AttentionUserMapper, A
 
         return super.remove(queryWrapper);
     }
+
+    /**
+     * @Description 查询用户关注情况
+     * @Author haifeng.lv
+     * @param: userId
+     * @param: flag true 关注的用户数量 false 被关注的用户数量
+     * @Date 2020/5/12 16:57
+     * @return: java.lang.Integer
+     */
+    @Override
+    public Integer findUserAttentionCountByUserId(String userId, boolean flag) {
+        QueryWrapper<AttentionUser> queryWrapper = new QueryWrapper<>();
+        if (flag) {
+            queryWrapper.eq("attention_user_id", userId);
+        } else {
+            queryWrapper.eq("be_attention_user_id", userId);
+        }
+        return baseMapper.selectCount(queryWrapper);
+    }
 }

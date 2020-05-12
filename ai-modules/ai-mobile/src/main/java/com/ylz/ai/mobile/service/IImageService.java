@@ -25,6 +25,7 @@ public interface IImageService extends IService<Image> {
     IPage<ImageInfo> findDiscoverImagePageList(Integer pageNo, Integer pageSize, HttpServletRequest request) throws Exception;
     IPage<ImageInfo> findMyImagePageList(Integer pageNo, Integer pageSize);
     boolean alterImageLikeById(String id, Integer number);
+    void alterImageRVAById(String id, String recognitionVisitAddress, Integer status);
     ImageStatusInfo findImageStatus(String id);
     ImageInfo findImageById(String id, HttpServletRequest request) throws Exception;
     String createImage(AddImage addImage);
@@ -33,4 +34,5 @@ public interface IImageService extends IService<Image> {
     List<Image> findImagesByIds(List<String> ids);
     void alterImageRedirectById(String imageId);
     ResponseEntity<Resource> findImage(String fileName);
+    Integer findImageUploadCountByUserId(String userId);
 }

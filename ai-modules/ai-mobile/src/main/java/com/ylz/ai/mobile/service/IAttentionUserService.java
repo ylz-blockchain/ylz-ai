@@ -17,4 +17,5 @@ public interface IAttentionUserService extends IService<AttentionUser> {
     List<UserInfo> findBeAttentionUsers(String id);
     boolean attentionUsers(String id);
     boolean cleanAttentionUsers(String id);
+    Integer findUserAttentionCountByUserId(String userId, boolean flag);
 }

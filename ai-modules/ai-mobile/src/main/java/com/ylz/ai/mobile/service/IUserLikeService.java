@@ -18,4 +18,5 @@ public interface IUserLikeService extends IService<UserLike> {
     boolean dropUserLikeByImageId(String id);
     List<UserLike> findUserLikeByUserId(String userId);
     IPage<ImageInfo> findLikeImagesByCurrent(Integer pageNo, Integer pageSize);
+    Integer findImageLikeCountByUserId(String userId);
 }

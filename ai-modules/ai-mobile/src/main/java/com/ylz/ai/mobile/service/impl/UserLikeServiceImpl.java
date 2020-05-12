@@ -3,12 +3,11 @@ package com.ylz.ai.mobile.service.impl;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ylz.ai.common.context.BaseContextHandler;
-import com.ylz.ai.common.error.ErrorCode;
 import com.ylz.ai.common.exception.BusinessException;
 import com.ylz.ai.mobile.constant.ErrCodeConstant;
-import com.ylz.ai.mobile.entity.Image;
 import com.ylz.ai.mobile.entity.UserLike;
 import com.ylz.ai.mobile.mapper.UserLikeMapper;
+import com.ylz.ai.mobile.service.IImageLinkedService;
 import com.ylz.ai.mobile.service.IImageService;
 import com.ylz.ai.mobile.service.IUserLikeService;
 import com.ylz.ai.common.util.EntityUtils;
@@ -16,13 +15,11 @@ import com.ylz.ai.mobile.vo.response.ImageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.transaction.annotation.Transactional;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @Description: 用户点赞
@@ -30,7 +27,7 @@ import java.util.stream.Collectors;
  * @Date: 2020-04-22 10:46
  */
 @Service
-public class UserLikeServiceImpl extends ServiceImpl<UserLikeMapper, UserLike> implements IUserLikeService {
+public class UserLikeServiceImpl extends ServiceImpl<UserLikeMapper, UserLike> implements IUserLikeService, IImageLinkedService {
     @Autowired
     private IImageService imageService;
 
@@ -104,5 +101,28 @@ public class UserLikeServiceImpl extends ServiceImpl<UserLikeMapper, UserLike> i
         Page<ImageInfo> page = new Page(pageNo, pageSize);
         IPage<ImageInfo> response = baseMapper.selectLikeImagesByCurrent(page, BaseContextHandler.getUserId());
         return response;
+    }
+
+    @Override
+    public Integer findImageLikeCountByUserId(String userId) {
+        QueryWrapper<UserLike> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id", userId);
+        return baseMapper.selectCount(queryWrapper);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteLink(String id) {
+        QueryWrapper<UserLike> queryWrapper = new QueryWrapper();
+        queryWrapper.eq("image_id", id);
+        super.remove(queryWrapper);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteBatchLink(List<String> ids) {
+        QueryWrapper<UserLike> queryWrapper = new QueryWrapper<>();
+        queryWrapper.in("image_id", ids);
+        super.remove(queryWrapper);
     }
 }
