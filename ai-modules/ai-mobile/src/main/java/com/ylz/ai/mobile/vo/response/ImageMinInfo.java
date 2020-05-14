@@ -20,6 +20,8 @@ public class ImageMinInfo {
     private String id;
     @ApiModelProperty(value = "0 不公开 1 公开")
     private Integer isOpen;
+    @ApiModelProperty(value = "是否启用 0 禁用 1 启用")
+    private Integer isEnable;
     @ApiModelProperty(value = "点赞数")
     private Integer likeNumber;
     @ApiModelProperty(value = "name")

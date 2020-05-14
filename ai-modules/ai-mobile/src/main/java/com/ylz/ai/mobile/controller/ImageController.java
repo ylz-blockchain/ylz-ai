@@ -6,6 +6,7 @@ import com.ylz.ai.mobile.service.IImageService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.ylz.ai.mobile.vo.request.AddImage;
 import com.ylz.ai.mobile.vo.request.ImageRequest;
+import com.ylz.ai.mobile.vo.request.UpdateImageEnable;
 import com.ylz.ai.mobile.vo.response.ImageInfo;
 import com.ylz.ai.mobile.vo.response.ImageMinInfo;
 import com.ylz.ai.mobile.vo.response.ImageStatusInfo;
@@ -23,6 +24,7 @@ import com.ylz.ai.auth.user.annotation.CheckUserToken;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 /**
  * @Description: 照片
@@ -150,6 +152,15 @@ public class ImageController {
         Result<ImageStatusInfo> result = new Result<>();
         ImageStatusInfo response = imageService.findImageStatus(id);
         result.setResult(response);
+        return result;
+    }
+
+    @ApiOperation(value = "照片是否启用-修改", notes = "照片是否启用-修改")
+    @PutMapping(value = "/changeImageEnable")
+    public Result changeImageEnable(@Valid @RequestBody UpdateImageEnable request) {
+        Result<String> result = new Result<>();
+        imageService.alterImageEnable(request.getId(), request.getIsEnable());
+        result.success("修改成功！");
         return result;
     }
 

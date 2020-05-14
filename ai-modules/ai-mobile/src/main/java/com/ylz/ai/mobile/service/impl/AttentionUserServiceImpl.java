@@ -102,9 +102,9 @@ public class AttentionUserServiceImpl extends ServiceImpl<AttentionUserMapper, A
     @Override
     public boolean attentionUsers(String id) {
         String userId = BaseContextHandler.getUserId();
-        if (userId.equals(id)) {
-            throw new BusinessException(ErrCodeConstant.NO_ATTENTION_SELF_ERROR);
-        }
+//        if (userId.equals(id)) {
+//            throw new BusinessException(ErrCodeConstant.NO_ATTENTION_SELF_ERROR);
+//        }
 
         FrontUser frontUser = frontUserService.getById(id);
         if (null == frontUser) {

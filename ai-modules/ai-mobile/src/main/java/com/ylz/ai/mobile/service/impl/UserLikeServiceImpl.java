@@ -100,6 +100,8 @@ public class UserLikeServiceImpl extends ServiceImpl<UserLikeMapper, UserLike> i
     public IPage<ImageInfo> findLikeImagesByCurrent(Integer pageNo, Integer pageSize) {
         Page<ImageInfo> page = new Page(pageNo, pageSize);
         IPage<ImageInfo> response = baseMapper.selectLikeImagesByCurrent(page, BaseContextHandler.getUserId());
+        // 设置当前用户点赞列表的关注情况
+        imageService.setLikeAndAttention(response.getRecords());
         return response;
     }
 

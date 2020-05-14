@@ -29,10 +29,12 @@ public interface IImageService extends IService<Image> {
     ImageStatusInfo findImageStatus(String id);
     ImageInfo findImageById(String id, HttpServletRequest request) throws Exception;
     String createImage(AddImage addImage);
+    void alterImageEnable(String id, Integer isEnable);
     boolean dropImageById(String id);
     boolean dropImageBatch(String ids);
     List<Image> findImagesByIds(List<String> ids);
     void alterImageRedirectById(String imageId);
     ResponseEntity<Resource> findImage(String fileName);
     Integer findImageUploadCountByUserId(String userId);
+    void setLikeAndAttention(List<ImageInfo> imageInfos);
 }

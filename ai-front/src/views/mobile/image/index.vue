@@ -163,6 +163,18 @@
             </el-tooltip>
           </template>
         </el-table-column>
+        <el-table-column align="center" sortable="custom" prop="isEnable" label="是否启用">
+          <template slot-scope="scope">
+            <el-tooltip :content="scope.row.isEnable === 1?'启用':'禁用'" placement="top">
+              <el-switch
+                v-model="scope.row.isEnable"
+                :active-value="1"
+                :inactive-value="0"
+                @change="handleEnableChange(scope.row)"
+              ></el-switch>
+            </el-tooltip>
+          </template>
+        </el-table-column>
         <el-table-column align="center" label="操作" width="150">
           <template slot-scope="scope">
             <el-button
@@ -195,6 +207,7 @@
 import {
   getImagePageList,
   expurgateImageById,
+  changeImageEnable,
   expurgateImageBatch
 } from "api/mobile/image";
 import { getRecognitionTypes } from "api/mobile/recognitionType";
@@ -340,6 +353,21 @@ export default {
     handleCurrentChange(val) {
       this.listQuery.page = val;
       this.getList();
+    },
+    handleEnableChange(row) {
+      // 修改照片是否启用
+      changeImageEnable({
+        id: row.id,
+        isEnable: row.isEnable
+      }).then(() => {
+        this.getList();
+        this.$notify({
+          title: "成功",
+          message: "修改成功",
+          type: "success",
+          duration: 2000
+        });
+      });
     }
   }
 };

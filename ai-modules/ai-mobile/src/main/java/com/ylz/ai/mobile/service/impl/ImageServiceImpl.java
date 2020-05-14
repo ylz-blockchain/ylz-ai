@@ -7,6 +7,7 @@ import com.ylz.ai.common.util.JsonUtils;
 import com.ylz.ai.common.util.SizeConverterUtils;
 import com.ylz.ai.common.util.SortUtils;
 import com.ylz.ai.mobile.constant.ErrCodeConstant;
+import com.ylz.ai.mobile.constant.ImageEnableConstant;
 import com.ylz.ai.mobile.constant.ImageProcessStatusConstant;
 import com.ylz.ai.mobile.entity.Image;
 import com.ylz.ai.mobile.entity.UserLike;
@@ -168,7 +169,7 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
             throw new BusinessException(ErrCodeConstant.COMMON_PARAM_ERR);
         }
 
-        if(ImageProcessStatusConstant.PROCESSED.equals(status)) {
+        if (ImageProcessStatusConstant.PROCESSED.equals(status)) {
             // 成功
             image.setRecognitionVisitAddress(recognitionVisitAddress);
             image.setProcessStatus(ImageProcessStatusConstant.PROCESSED);
@@ -248,6 +249,8 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
         image.setUploadUserId(BaseContextHandler.getUserId());
         // 默认未处理状态
         image.setProcessStatus(ImageProcessStatusConstant.NO_PROCESS);
+        // 默认启用状态
+        image.setIsEnable(ImageEnableConstant.ENABLE);
         super.save(image);
 
         ImageAiRequest imageAiRequest = new ImageAiRequest();
@@ -258,6 +261,24 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
         queueSender.sendMessage(JsonUtils.toJSONString(imageAiRequest));
 
         return image.getId();
+    }
+
+    /**
+     * @Description 修改照片是否启用
+     * @Author haifeng.lv
+     * @param: id
+     * @param: isEnable 是否启用 0 禁用 1 启用
+     * @Date 2020/5/14 10:01
+     */
+    @Override
+    public void alterImageEnable(String id, Integer isEnable) {
+        Image image = baseMapper.selectById(id);
+        if (null == image) {
+            throw new BusinessException(ErrCodeConstant.COMMON_PARAM_ERR);
+        }
+        image.setIsEnable(isEnable);
+
+        baseMapper.updateById(image);
     }
 
     @Override
@@ -322,6 +343,7 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
      * @param: imageInfos
      * @Date 2020/4/24 15:52
      */
+    @Override
     public void setLikeAndAttention(List<ImageInfo> imageInfos) {
         if (!imageInfos.isEmpty()) {
             // 查询用户喜欢列表

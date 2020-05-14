@@ -25,3 +25,7 @@ export function expurgateImageBatch(data) {
 export function getImageById(data) {
   return get(prefix + 'image/getImageById', data)
 }
+
+export function changeImageEnable(data) {
+  return put(prefix + 'image/changeImageEnable', data)
+}

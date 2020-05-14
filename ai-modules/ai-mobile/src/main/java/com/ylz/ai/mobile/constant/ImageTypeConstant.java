@@ -1,7 +1,7 @@
 package com.ylz.ai.mobile.constant;
 
 /**
- * @Description
+ * @Description 照片是否公开
  * @Author haifeng.lv
  * @Date 2020/4/23 10:54
  */
