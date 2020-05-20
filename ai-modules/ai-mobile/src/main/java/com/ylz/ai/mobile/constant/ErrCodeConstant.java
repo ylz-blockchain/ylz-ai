@@ -33,4 +33,12 @@ public class ErrCodeConstant extends ErrCodeBaseConstant {
      * 无法获取文件大小
      */
     public static final ErrorCode NO_GET_FILE_SIZE_ERROR = new ErrorCode("30006", "无法获取文件大小");
+    /**
+     * 获取微信小程序 token失败
+     */
+    public static final ErrorCode GET_WEIXIN_TOKEN_ERR = new ErrorCode("30007", "获取微信小程序 token失败");
+    /**
+     * 内容涉嫌敏感
+     */
+    public static final ErrorCode CONTENT_NO_ALLOW_ERR = new ErrorCode("30008", "内容涉嫌敏感");
 }

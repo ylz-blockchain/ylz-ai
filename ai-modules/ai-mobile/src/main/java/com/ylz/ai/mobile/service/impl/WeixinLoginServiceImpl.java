@@ -9,10 +9,12 @@ import com.ylz.ai.common.util.MD5Util;
 import com.ylz.ai.mobile.constant.ErrCodeConstant;
 import com.ylz.ai.mobile.constant.LoginTypeConstant;
 import com.ylz.ai.mobile.constant.UserSexConstant;
+import com.ylz.ai.mobile.constant.WeiXinConstant;
 import com.ylz.ai.mobile.entity.FrontUser;
 import com.ylz.ai.mobile.service.IFrontUserService;
 import com.ylz.ai.mobile.service.ILoginService;
 import com.ylz.ai.mobile.weixin.WeixinTemplate;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +27,7 @@ import java.util.List;
  * @Date 2020/4/27 11:15
  */
 @Service
+@Slf4j
 public class WeixinLoginServiceImpl implements ILoginService {
     @Autowired
     private IFrontUserService frontUserService;
@@ -42,8 +45,10 @@ public class WeixinLoginServiceImpl implements ILoginService {
     public FrontUser login(FrontAuthenticationRequest request) {
         try {
             QueryWrapper<FrontUser> queryWrapper = new QueryWrapper<>();
-//            JSONObject result = weixinTemplate.login(request.getCode());
-            String open_id = "043EdjGT1Y7cJ211soGT1QH0GT1EdjG7";
+            JSONObject result = weixinTemplate.login(request.getCode());
+            log.info("微信登录用户信息: " + result);
+
+            String open_id = (String) result.get(WeiXinConstant.OPEN_CODE);
             queryWrapper.eq("wx_number", open_id);
             List<FrontUser> frontUsers = frontUserService.list(queryWrapper);
             if (!frontUsers.isEmpty()) {

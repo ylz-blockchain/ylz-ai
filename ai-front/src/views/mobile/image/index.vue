@@ -105,7 +105,8 @@
           <template slot-scope="scope">
             <span v-if="scope.row.processStatus === 1">已处理</span>
             <span v-else-if="scope.row.processStatus === 0">未处理</span>
-            <span v-else>失败</span>
+            <span v-else-if="scope.row.processStatus === 2">失败</span>
+            <span v-else>审核失败</span>
           </template>
         </el-table-column>
         <el-table-column align="center" sortable="custom" prop="size" label="size">
@@ -246,6 +247,10 @@ export default {
         {
           value: 2,
           label: "失败"
+        },
+        {
+          value: 3,
+          label: "审核失败"
         }
       ],
       listQuery: {

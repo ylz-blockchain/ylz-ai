@@ -1,8 +1,10 @@
 package com.ylz.ai.mobile.service.impl;
 
 import com.ylz.ai.common.context.BaseContextHandler;
+import com.ylz.ai.mobile.constant.ErrCodeConstant;
 import com.ylz.ai.mobile.entity.ImageComment;
 import com.ylz.ai.mobile.mapper.ImageCommentMapper;
+import com.ylz.ai.mobile.service.ICheckService;
 import com.ylz.ai.mobile.service.IImageCommentService;
 import com.ylz.ai.common.error.ErrCodeBaseConstant;
 import com.ylz.ai.common.exception.BusinessException;
@@ -13,6 +15,7 @@ import com.ylz.ai.mobile.vo.request.UserCommentRequest;
 import com.ylz.ai.mobile.vo.response.ImageCommentInfo;
 import com.ylz.ai.mobile.vo.response.ImageCommentMinInfo;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import org.springframework.beans.BeanUtils;
@@ -33,6 +36,9 @@ import java.util.stream.Collectors;
  */
 @Service
 public class ImageCommentServiceImpl extends ServiceImpl<ImageCommentMapper, ImageComment> implements IImageCommentService, IImageLinkedService {
+    @Autowired
+    private ICheckService checkService;
+
     @Override
     public IPage<ImageCommentMinInfo> findImageCommentPageList(UserCommentRequest request, Integer pageNo, Integer pageSize) {
         Page<ImageCommentMinInfo> page = new Page<>(pageNo, pageSize);
@@ -43,6 +49,12 @@ public class ImageCommentServiceImpl extends ServiceImpl<ImageCommentMapper, Ima
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean createImageComment(AddImageComment addImageComment) {
+        // 检查内容是否合法
+        boolean flag = checkService.checkContent(addImageComment.getComment());
+        if(!flag) {
+            throw new BusinessException(ErrCodeConstant.CONTENT_NO_ALLOW_ERR);
+        }
+
         ImageComment imageComment = new ImageComment();
         EntityUtils.setDefaultValue(imageComment);
         // 照片评论

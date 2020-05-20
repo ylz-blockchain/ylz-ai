@@ -70,6 +70,8 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
     @Autowired
     @Qualifier("aiQueueSender")
     private QueueSender queueSender;
+    @Autowired
+    private ICheckService checkService;
 
     /**
      * 上传路径
@@ -230,6 +232,16 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
     @Override
     public String createImage(AddImage addImage) {
         Image image = new Image();
+        // 鉴定敏感内容
+        boolean flag = checkService.checkImage(addImage.getPrototypeVisitAddress());
+        if(flag) {
+            // 默认未处理状态
+            image.setProcessStatus(ImageProcessStatusConstant.NO_PROCESS);
+        } else {
+            // 审核失败
+            image.setProcessStatus(ImageProcessStatusConstant.NO_AUDIT);
+        }
+
         EntityUtils.setDefaultValue(image);
         BeanUtils.copyProperties(addImage, image);
         try {
@@ -247,8 +259,6 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
         // 默认 0浏览
         image.setBrowseNumber(0);
         image.setUploadUserId(BaseContextHandler.getUserId());
-        // 默认未处理状态
-        image.setProcessStatus(ImageProcessStatusConstant.NO_PROCESS);
         // 默认启用状态
         image.setIsEnable(ImageEnableConstant.ENABLE);
         super.save(image);

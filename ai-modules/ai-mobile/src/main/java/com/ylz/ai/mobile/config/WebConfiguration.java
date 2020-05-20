@@ -6,7 +6,6 @@ import com.ylz.ai.auth.client.interceptor.AuthClientInterceptor;
 import com.ylz.ai.auth.user.interceptor.AuthUserInterceptor;
 import com.ylz.ai.common.exception.GlobalExceptionHandler;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -58,8 +57,10 @@ public class WebConfiguration implements WebMvcConfigurer {
     }
 
     @Bean
-    public RestTemplate restTemplate(RestTemplateBuilder builder) {
-        return builder.build();
+    public RestTemplate restTemplate() {
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new WxMappingJackson2HttpMessageConverter());
+        return restTemplate;
     }
 
     /**

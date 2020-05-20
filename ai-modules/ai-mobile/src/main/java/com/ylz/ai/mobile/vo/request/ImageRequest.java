@@ -18,7 +18,7 @@ public class ImageRequest {
     private String recognitionTypeId;
     @ApiModelProperty(value = "是否公开 0 不公开 1 公开")
     private Integer isOpen;
-    @ApiModelProperty(value = "处理状态 0 未处理 1 已处理 2 失败")
+    @ApiModelProperty(value = "处理状态 0 未处理 1 已处理 2 失败 3 审核失败")
     private Integer processStatus;
     @ApiModelProperty(value = "描述")
     private String description;

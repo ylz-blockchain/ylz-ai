@@ -12,7 +12,7 @@ spring:
           username: zhangxiaoguang@ylzlink.com
           password: ylzzhangxiaoguang
   rabbitmq:
-    host: 192.168.0.250
+    host: localhost
     port: 5672
     username: admin
     password: admin
@@ -42,4 +42,4 @@ eureka:
   client:
     registryFetchIntervalSeconds: 5
     serviceUrl:
-      defaultZone: http://${EUREKA_HOST:192.168.0.250}:${EUREKA_PORT:8761}/eureka/
+      defaultZone: http://${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka/
