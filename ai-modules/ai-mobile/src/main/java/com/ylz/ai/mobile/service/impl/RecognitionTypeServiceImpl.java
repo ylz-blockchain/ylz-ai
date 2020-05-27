@@ -1,11 +1,11 @@
 package com.ylz.ai.mobile.service.impl;
 
+import com.lvhaifeng.mybatis.query.QueryHelper;
 import com.ylz.ai.mobile.entity.RecognitionType;
 import com.ylz.ai.mobile.mapper.RecognitionTypeMapper;
 import com.ylz.ai.mobile.service.IRecognitionTypeService;
 import com.ylz.ai.common.error.ErrCodeBaseConstant;
 import com.ylz.ai.common.exception.BusinessException;
-import com.ylz.ai.common.query.QueryGenerator;
 import com.ylz.ai.common.util.EntityUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -30,7 +30,7 @@ public class RecognitionTypeServiceImpl extends ServiceImpl<RecognitionTypeMappe
     @Override
     @Transactional(rollbackFor = Exception.class)
     public IPage<RecognitionType> findRecognitionTypePageList(RecognitionType recognitionType, Integer pageNo, Integer pageSize, String sortProp, String sortType) {
-        QueryWrapper<RecognitionType> queryWrapper = QueryGenerator.initQueryWrapper(recognitionType, sortProp, sortType);
+        QueryWrapper<RecognitionType> queryWrapper = QueryHelper.initQueryWrapper(recognitionType, sortProp, sortType);
         Page<RecognitionType> page = new Page<>(pageNo, pageSize);
         IPage<RecognitionType> pageList = baseMapper.selectPage(page, queryWrapper);
         return pageList;

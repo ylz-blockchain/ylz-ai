@@ -1,6 +1,8 @@
 package com.ylz.ai.mobile.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ylz.ai.mobile.entity.Image;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
@@ -43,7 +45,7 @@ public interface ImageMapper extends BaseMapper<Image> {
      * @Date 2020/4/30 14:11
      * @return: com.baomidou.mybatisplus.core.metadata.IPage<com.ylz.ai.mobile.vo.response.ImageMinInfo>
      */
-    IPage<ImageMinInfo> selectImagePageList(@Param("page") Page<ImageMinInfo> page, @Param("image") ImageRequest image);
+    IPage<ImageMinInfo> selectImagePageList(@Param("page") Page<ImageMinInfo> page, @Param(Constants.WRAPPER) Wrapper image);
 
     /**
      * @Description 查询我的照片列表

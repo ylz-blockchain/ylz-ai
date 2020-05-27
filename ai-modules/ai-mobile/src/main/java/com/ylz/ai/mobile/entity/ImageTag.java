@@ -13,7 +13,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 /**
  * @Description: 照片标签
  * @Author: haifeng.lv
- * @Date: 2020-04-21 14:46
+ * @Date: 2020-05-27 15:10
  */
 @Data
 @TableName("image_tag")

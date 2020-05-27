@@ -6,25 +6,18 @@ import com.ylz.ai.mobile.entity.AttentionUser;
 import com.ylz.ai.mobile.entity.FrontUser;
 import com.ylz.ai.mobile.mapper.AttentionUserMapper;
 import com.ylz.ai.mobile.service.IAttentionUserService;
-import com.ylz.ai.common.error.ErrCodeBaseConstant;
 import com.ylz.ai.common.exception.BusinessException;
-import com.ylz.ai.common.query.QueryGenerator;
 import com.ylz.ai.common.util.EntityUtils;
 import com.ylz.ai.mobile.service.IFrontUserService;
 import com.ylz.ai.mobile.vo.response.UserInfo;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import org.springframework.beans.BeanUtils;
-import org.springframework.transaction.annotation.Transactional;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 

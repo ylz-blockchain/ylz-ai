@@ -1,16 +1,16 @@
 package com.ylz.ai.mobile.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
+import com.lvhaifeng.mybatis.query.QueryHelper;
+import com.lvhaifeng.mybatis.query.QueryWrapperExt;
 import com.ylz.ai.auth.user.service.AuthUserService;
 import com.ylz.ai.common.context.BaseContextHandler;
 import com.ylz.ai.common.util.JsonUtils;
 import com.ylz.ai.common.util.SizeConverterUtils;
-import com.ylz.ai.common.util.SortUtils;
 import com.ylz.ai.mobile.constant.ErrCodeConstant;
 import com.ylz.ai.mobile.constant.ImageEnableConstant;
 import com.ylz.ai.mobile.constant.ImageProcessStatusConstant;
-import com.ylz.ai.mobile.entity.Image;
-import com.ylz.ai.mobile.entity.UserLike;
+import com.ylz.ai.mobile.entity.*;
 import com.ylz.ai.mobile.mapper.ImageMapper;
 import com.ylz.ai.mobile.rabbitmq.sender.QueueSender;
 import com.ylz.ai.mobile.rabbitmq.vo.ImageAiRequest;
@@ -83,10 +83,23 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
     @Transactional(rollbackFor = Exception.class)
     public IPage<ImageMinInfo> findImagePageList(ImageRequest request, Integer pageNo, Integer pageSize, String sortProp, String sortType) {
         Page<ImageMinInfo> page = new Page(pageNo, pageSize);
-        List<OrderItem> orderItems = SortUtils.resolverSort(sortProp, sortType);
-        orderItems.add(OrderItem.desc("im.crt_time"));
+        List<OrderItem> orderItems = QueryHelper.resolverSort(sortProp, sortType);
+        orderItems.add(OrderItem.desc(ImageColumn.CRT_TIME));
         page.setOrders(orderItems);
-        IPage<ImageMinInfo> pageList = imageMapper.selectImagePageList(page, request);
+        QueryWrapperExt queryWrapper = new QueryWrapperExt();
+        queryWrapper.setResultClass(ImageMinInfo.class);
+        queryWrapper.likeIsNotNull(ImageColumn.NAME, request.getName())
+                    .likeIsNotNull(ImageColumn.TITLE, request.getTitle())
+                    .likeIsNotNull(ImageColumn.DESCRIPTION, request.getDescription())
+                    .eqIsNotEmpty(ImageColumn.IS_OPEN, request.getIsOpen())
+                    .eqIsNotEmpty(ImageColumn.RECOGNITION_TYPE_ID, request.getRecognitionTypeId())
+                    .eqIsNotEmpty(ImageColumn.PROCESS_STATUS, request.getProcessStatus());
+
+        QueryWrapperExt.Joiner joiner = queryWrapper.createJoiner(ImageColumn.TABLE);
+        joiner.leftJoinOnEqualTo(RecognitionTypeColumn.TABLE, ImageColumn.RECOGNITION_TYPE_ID, RecognitionTypeColumn.ID)
+              .leftJoinOnEqualTo(FrontUserColumn.TABLE, ImageColumn.UPLOAD_USER_ID, FrontUserColumn.ID);
+
+        IPage<ImageMinInfo> pageList = imageMapper.selectImagePageList(page, queryWrapper);
         pageList.getRecords().forEach(record -> {
             record.setSize(SizeConverterUtils.BTrim.convert(Integer.parseInt(record.getSize())));
         });

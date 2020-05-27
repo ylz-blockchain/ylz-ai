@@ -1,11 +1,11 @@
 package com.ylz.ai.mobile.service.impl;
 
+import com.lvhaifeng.mybatis.query.QueryHelper;
 import com.ylz.ai.mobile.entity.TagDictionary;
 import com.ylz.ai.mobile.mapper.TagDictionaryMapper;
 import com.ylz.ai.mobile.service.ITagDictionaryService;
 import com.ylz.ai.common.error.ErrCodeBaseConstant;
 import com.ylz.ai.common.exception.BusinessException;
-import com.ylz.ai.common.query.QueryGenerator;
 import com.ylz.ai.common.util.EntityUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -30,7 +30,7 @@ public class TagDictionaryServiceImpl extends ServiceImpl<TagDictionaryMapper, T
     @Override
     @Transactional(rollbackFor = Exception.class)
     public IPage<TagDictionary> findTagDictionaryPageList(TagDictionary tagDictionary, Integer pageNo, Integer pageSize, String sortProp, String sortType) {
-        QueryWrapper<TagDictionary> queryWrapper = QueryGenerator.initQueryWrapper(tagDictionary, sortProp, sortType);
+        QueryWrapper<TagDictionary> queryWrapper = QueryHelper.initQueryWrapper(tagDictionary, sortProp, sortType);
         Page<TagDictionary> page = new Page<>(pageNo, pageSize);
         IPage<TagDictionary> pageList = baseMapper.selectPage(page, queryWrapper);
         return pageList;
