@@ -1,6 +1,7 @@
 package com.ylz.ai.admin.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lvhaifeng.mybatis.query.QueryHelper;
 import com.ylz.ai.admin.entity.Button;
 import com.ylz.ai.admin.mapper.ButtonMapper;
 import com.ylz.ai.admin.service.IButtonService;
@@ -9,7 +10,6 @@ import com.ylz.ai.admin.vo.response.ButtonInfo;
 import com.ylz.ai.admin.vo.response.MenuInfo;
 import com.ylz.ai.common.error.ErrCodeBaseConstant;
 import com.ylz.ai.common.exception.BusinessException;
-import com.ylz.ai.common.query.QueryGenerator;
 import com.ylz.ai.common.util.EntityUtils;
 import io.jsonwebtoken.lang.Collections;
 import org.apache.commons.lang3.StringUtils;
@@ -44,7 +44,7 @@ public class ButtonServiceImpl extends ServiceImpl<ButtonMapper, Button> impleme
     @Override
     @Transactional(rollbackFor = Exception.class)
     public IPage<ButtonInfo> findButtonPageList(Button button, Integer pageNo, Integer pageSize, String sortProp, String sortType) {
-        QueryWrapper<Button> queryWrapper = QueryGenerator.initQueryWrapper(button, sortProp, sortType);
+        QueryWrapper<Button> queryWrapper = QueryHelper.initQueryWrapper(button, sortProp, sortType);
         Page<Button> page = new Page<>(pageNo, pageSize);
         IPage<Button> pageList = baseMapper.selectPage(page, queryWrapper);
         List<Button> buttonList = pageList.getRecords();

@@ -1,5 +1,6 @@
 package com.ylz.ai.admin.service.impl;
 
+import com.lvhaifeng.mybatis.query.QueryHelper;
 import com.ylz.ai.admin.constant.ErrCodeConstant;
 import com.ylz.ai.admin.entity.Role;
 import com.ylz.ai.admin.entity.User;
@@ -16,7 +17,6 @@ import com.ylz.ai.auth.user.service.AuthUserService;
 import com.ylz.ai.common.encoder.Sha256PasswordEncoder;
 import com.ylz.ai.common.error.ErrCodeBaseConstant;
 import com.ylz.ai.common.exception.BusinessException;
-import com.ylz.ai.common.query.QueryGenerator;
 import com.ylz.ai.common.util.EntityUtils;
 import com.ylz.ai.common.vo.AuthInfo;
 import io.jsonwebtoken.lang.Collections;
@@ -60,7 +60,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     @Override
     @Transactional(rollbackFor = Exception.class)
     public IPage<UserInfo> findUserPageList(User user, Integer pageNo, Integer pageSize, String sortProp, String sortType) {
-        QueryWrapper<User> queryWrapperUser = QueryGenerator.initQueryWrapper(user, sortProp, sortType);
+        QueryWrapper<User> queryWrapperUser = QueryHelper.initQueryWrapper(user, sortProp, sortType);
         Page<User> page = new Page<>(pageNo, pageSize);
         IPage<User> pageList = baseMapper.selectPage(page, queryWrapperUser);
         List<User> userList = pageList.getRecords();

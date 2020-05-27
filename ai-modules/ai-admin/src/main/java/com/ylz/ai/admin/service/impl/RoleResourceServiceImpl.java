@@ -1,5 +1,6 @@
 package com.ylz.ai.admin.service.impl;
 
+import com.lvhaifeng.mybatis.query.QueryHelper;
 import com.ylz.ai.admin.constant.ErrCodeConstant;
 import com.ylz.ai.admin.constant.ResourceTypeEnum;
 import com.ylz.ai.admin.entity.Role;
@@ -10,7 +11,6 @@ import com.ylz.ai.admin.service.IRoleService;
 import com.ylz.ai.admin.vo.request.AddRoleResource;
 import com.ylz.ai.common.error.ErrCodeBaseConstant;
 import com.ylz.ai.common.exception.BusinessException;
-import com.ylz.ai.common.query.QueryGenerator;
 import com.ylz.ai.common.util.EntityUtils;
 import io.jsonwebtoken.lang.Collections;
 import org.apache.commons.lang3.StringUtils;
@@ -40,7 +40,7 @@ public class RoleResourceServiceImpl extends ServiceImpl<RoleResourceMapper, Rol
     @Override
     @Transactional(rollbackFor = Exception.class)
     public IPage<RoleResource> findRoleResourcePageList(RoleResource roleResource, Integer pageNo, Integer pageSize, String sortProp, String sortType) {
-        QueryWrapper<RoleResource> queryWrapper = QueryGenerator.initQueryWrapper(roleResource, sortProp, sortType);
+        QueryWrapper<RoleResource> queryWrapper = QueryHelper.initQueryWrapper(roleResource, sortProp, sortType);
         Page<RoleResource> page = new Page<>(pageNo, pageSize);
         IPage<RoleResource> pageList = baseMapper.selectPage(page, queryWrapper);
         return pageList;

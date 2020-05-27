@@ -1,5 +1,6 @@
 package com.ylz.ai.admin.service.impl;
 
+import com.lvhaifeng.mybatis.query.QueryHelper;
 import com.ylz.ai.admin.constant.ErrCodeConstant;
 import com.ylz.ai.admin.constant.ResourceTypeEnum;
 import com.ylz.ai.admin.entity.Button;
@@ -13,7 +14,6 @@ import com.ylz.ai.admin.vo.response.MenuInfo;
 import com.ylz.ai.common.error.ErrCodeBaseConstant;
 import com.ylz.ai.common.exception.BusinessException;
 import com.ylz.ai.common.util.EntityUtils;
-import com.ylz.ai.common.util.SortUtils;
 import io.jsonwebtoken.lang.Collections;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +53,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements IM
     @Transactional(rollbackFor = Exception.class)
     public IPage<MenuInfo> findMenuPageList(Menu menu, Integer pageNo, Integer pageSize, String sortProp, String sortType) {
         Page<MenuInfo> page = new Page(pageNo, pageSize);
-        page.setOrders(SortUtils.resolverSort(sortProp, sortType));
+        page.setOrders(QueryHelper.resolverSort(sortProp, sortType));
         if (StringUtils.isBlank(menu.getParentId())
                 && StringUtils.isBlank(menu.getName())
                 && StringUtils.isBlank(menu.getUrl())
